@@ -38,3 +38,15 @@ function require_login() {
         exit();
     }
 }
+
+function require_role($requiredRole) {
+    if (!isset($_SESSION)) {
+        session_start();
+    }
+
+    if (!isset($_SESSION['role']) || $_SESSION['role'] !== $requiredRole) {
+        http_response_code(403); // Forbidden
+        echo "<h1>403 Forbidden</h1><p>You do not have permission to view this page.</p>";
+        exit();
+    }
+}

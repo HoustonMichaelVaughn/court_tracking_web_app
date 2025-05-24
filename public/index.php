@@ -15,14 +15,17 @@ get('/', function($app) {
 });
 
 path('/cases', function($app) {
+    require_once __DIR__ . '/../lib/includes/helpers.php';
     ($app->render)('standard', 'manage_entities/manage_cases');
 });
 
 path('/defendants', function($app) {
+    require_once __DIR__ . '/../lib/includes/helpers.php';
     ($app->render)('standard', 'manage_entities/manage_defendants');
 });
 
 path('/lawyers', function($app) {
+    require_once __DIR__ . '/../lib/includes/helpers.php';
     ($app->render)('standard', 'manage_entities/manage_lawyers');
 });
 
