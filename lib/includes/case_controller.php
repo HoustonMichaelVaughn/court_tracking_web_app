@@ -1,5 +1,4 @@
 <?php
-session_start();
 
 // all models required to add or edit a case
 require_once __DIR__ . '/../models/Defendant.php';

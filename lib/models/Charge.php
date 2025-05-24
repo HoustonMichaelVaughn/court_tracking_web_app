@@ -17,6 +17,7 @@ class Charge
             ':description' => $data['description'] ?? '',
             ':status'      => $data['status'] ?? ''
         ]);
+        return $db->lastInsertId();
     }
 
     public static function getChargesByCaseID($caseID)
@@ -48,7 +49,9 @@ class Charge
     
     public static function update($chargeID, $data) {
         $db = Database::getInstance()->getConnection();
-    
+
+        $oldData = self::getChargeByChargeID($chargeID);
+
         $stmt = $db->prepare("
             UPDATE charge
             SET Description = :description, Status = :status
@@ -60,6 +63,8 @@ class Charge
             ':status'      => $data['status'],
             ':charge_ID'   => $chargeID
         ]);
+
+        return [$oldData, $data];
     }    
     
     

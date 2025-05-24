@@ -7,11 +7,12 @@ class Database
     private $host = 'localhost';
     private $dbname = 'court_tracking_system';
     private $username = 'root';
-    private $password = '';
+    private $port = '8889';
+    private $password = 'root';
 
     private function __construct()
     {
-        $dsn = "mysql:host={$this->host};dbname={$this->dbname};charset=utf8mb4";
+        $dsn = "mysql:host={$this->host};port={$this->port};dbname={$this->dbname};charset=utf8mb4";
         try {
             $this->pdo = new PDO($dsn, $this->username, $this->password, [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
