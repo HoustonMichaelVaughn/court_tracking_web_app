@@ -58,7 +58,7 @@ function save_charge($app, $chargeID = null) {
             $username = $_SESSION['username'] ?? 'unknown';
 
             $logMessage = sprintf(
-                "User %s (ID: %s) updated charge #%d. Description: '%s' → '%s', Status: '%s' → '%s'",
+                "User %s (ID: %s) updated charge #%d. \n Description: '%s' → '%s', \n Status: '%s' → '%s'",
                 $username,
                 $userID,
                 $chargeID,
@@ -77,7 +77,7 @@ function save_charge($app, $chargeID = null) {
             $username = $_SESSION['username'] ?? 'unknown';
 
             $logMessage = sprintf(
-                "User %s (ID: %s) added new charge to case #%d. Description: '%s', Status: '%s'",
+                "User %s (ID: %s) added new charge to case #%d. \n Description: '%s', \n Status: '%s'",
             $username,
             $userID,
             $caseID,
@@ -121,7 +121,7 @@ function delete_charge($app, $chargeID) {
         $username = $_SESSION['username'] ?? 'unknown';
 
         $logMessage = sprintf(
-            "User %s (ID: %s) deleted charge #%d from case #%d. Description: '%s', Status: '%s'",
+            "User %s (ID: %s) deleted charge #%d from case #%d. \n Description: '%s', \n Status: '%s'",
         $username,
         $userID,
         $chargeID,

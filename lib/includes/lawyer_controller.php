@@ -1,6 +1,4 @@
 <?php
-session_start();
-
 // define Defendant DB fields
 const LAWYER_FIELDS = [
     'name',
@@ -11,6 +9,7 @@ const LAWYER_FIELDS = [
 
 require_once __DIR__ . '/../models/Lawyer.php';
 require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/../models/logs.php';
 
 switch ($action) {
     // direct user to correct page
@@ -47,10 +46,35 @@ function save_lawyer($app, $lawyerID = null) {
             }
 
             if ($isEdit) { // update database
+                list($oldData, $newData) = Lawyer::update($lawyerID, $data);
+                
                 Lawyer::update($lawyerID, $data);
+
+                $changes = [];
+                foreach (LAWYER_FIELDS as $field) {
+                    $oldValue = trim($oldData[ucfirst($field)] ?? '');
+                    $newValue = trim($data[$field] ?? '');
+                    if ($oldValue !== $newValue) {
+                        $changes[] = ucfirst($field) . " changed from '$oldValue' to '$newValue'";
+                    }
+                }
+
+                $changeSummary = empty($changes) ? "No changes were made." : implode("\n", $changes);
+
+                LogModel::log_action($_SESSION['user_id'], "Edited lawyer ID $lawyerID.\n$changeSummary");
+
                 $successMessage = "Lawyer updated successfully.";
             } else {
                 Lawyer::create($data);
+
+                $details = [];
+                foreach (LAWYER_FIELDS as $field) {
+                    $details[] = ucfirst($field) . ": '{$data[$field]}'";
+                }
+                $detailStr = implode("; ", $details);
+
+                LogModel::log_action($_SESSION['user_id'], "Added new lawyer. $detailStr");
+
                 $successMessage = "Lawyer added successfully.";
             }
 
@@ -68,11 +92,25 @@ function save_lawyer($app, $lawyerID = null) {
 
 
 function delete_lawyer($app, $lawyerID) {
+    try{
+        // Fetch data before deleting for logging
+        $lawyer = Lawyer::getLawyerByLawyerId($lawyerID);
+        
+        Lawyer::delete($lawyerID);
 
-    Lawyer::delete($lawyerID);
+        $details = "Deleted lawyer ID $lawyerID. Details - ";
+        $parts = [];
+        foreach (LAWYER_FIELDS as $field) {
+            $parts[] = ucfirst($field) . ": '" . ($lawyer[ucfirst($field)] ?? '') . "'";
+        }
+        $details .= implode("; ", $parts);
 
-    // Keep user on same page
-    redirect_with_success("/lawyer/manage", "Lawyer deleted successfully.");
+        LogModel::log_action($_SESSION['user_id'], $details);
+
+        redirect_with_success("/lawyer/manage", "Lawyer deleted successfully.");
+    } catch (Exception $e) {
+        render_error($app, $e->getMessage());
+    }
 }
 
 function show_manage_lawyers($app) {

@@ -1,5 +1,4 @@
 <?php
-session_start();
 
 require_once __DIR__ . '/../models/CourtEvent.php';
 require_once __DIR__ . '/../includes/helpers.php';
@@ -78,7 +77,7 @@ function save_event($app, $eventID = null) {
             } else {
                 CourtEvent::create($caseID, $data);
 
-                $details = "Location: '{$data['location']}'; Description: '{$data['description']}'; Date: '{$data['date']}'";
+                $details = "Location: '{$data['location']}'; \n Description: '{$data['description']}'; Date: '{$data['date']}'";
                 LogModel::log_action($_SESSION['user_id'], "Created new event for case ID $caseID. $details");
 
                 $successMessage = "Event added successfully.";
@@ -115,7 +114,7 @@ function delete_event($app, $eventID) {
         CourtEvent::delete($eventID);
 
         $details = "Deleted event ID $eventID from case ID $caseID. ";
-        $details .= "Details - Location: '{$event['Location']}', Description: '{$event['Description']}', Date: '{$event['Date']}'.";
+        $details .= "Details - Location: '{$event['Location']}', \n Description: '{$event['Description']}', Date: '{$event['Date']}'.";
 
         LogModel::log_action($_SESSION['user_id'], $details);
 
