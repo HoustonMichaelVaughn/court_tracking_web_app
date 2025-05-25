@@ -7,6 +7,7 @@ require_once __DIR__ . '/../models/CaseRecord.php';
 require_once __DIR__ . '/../models/Charge.php';
 require_once __DIR__ . '/../models/CourtEvent.php';
 require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/../models/Logs.php';
 
 switch ($action) {
     // internal routing within the controller
@@ -278,6 +279,11 @@ function handle_confirm_step($app) {
         $db->commit();
         unset($_SESSION['case']);
 
+        if ($userID) {
+    $defendantID = $data['defendant_ID'] ?? 'unknown';
+    LogModel::log_action($userID, "Added new defendant with ID {$defendantID}");
+}
+
         header("Location: " . BASE_URL . "/case/success");
         exit;
 
@@ -320,13 +326,60 @@ function show_manage_cases($app) {
 
 function delete_case($app, $caseID) {
     try {
-        // delete operation handled by model
+        // Step 1: Get full case info
+        $caseDetails = CaseRecord::getCaseDetailsByID($caseID);
+
+        if (empty($caseDetails)) {
+            throw new Exception("Case with ID $caseID not found.");
+        }
+
+        // Step 2: Format summary for logging
+        $defendant = $caseDetails[0]['defendant_name'] ?? 'Unknown';
+
+        $charges = [];
+        $events = [];
+        $lawyers = [];
+
+        foreach ($caseDetails as $detail) {
+            if (!empty($detail['charge_type']) && !in_array($detail['charge_type'], $charges)) {
+                $charges[] = $detail['charge_type'];
+            }
+            if (!empty($detail['event_description']) && !in_array($detail['event_description'], $events)) {
+                $events[] = [
+                    'description' => $detail['event_description'],
+                    'date' => $detail['event_date']
+                ];
+            }
+            if (!empty($detail['lawyer_name']) && !in_array($detail['lawyer_name'], $lawyers)) {
+                $lawyers[] = $detail['lawyer_name'];
+            }
+        }
+
+        // Step 3: Delete the case
         CaseRecord::deleteCaseByID($caseID);
-        show_manage_cases($app);
+
+        // Step 4: Log the action
+        $userID = $_SESSION['user_id'] ?? null;
+        if ($userID) {
+            $eventSummaries = array_map(function($e) {
+            return "{$e['description']} (on {$e['date']})";
+            }, $events);
+
+            $summary = "Deleted case ID {$caseID} for defendant '{$defendant}'. "
+                . "Charges: " . implode(', ', $charges) . ". "
+                . "Events: " . implode(', ', $eventSummaries) . ". "
+                . "Lawyers: " . implode(', ', $lawyers) . ".";
+            LogModel::log_action($userID, $summary);
+        }
+
+        // Step 5: Redirect with success
+        redirect_with_success("/case/manage", "Case deleted successfully.");
+
     } catch (Exception $e) {
         render_error($app, $e->getMessage());
-    } 
+    }
 }
+
 
 function edit_case($app, $caseID) {
     try {

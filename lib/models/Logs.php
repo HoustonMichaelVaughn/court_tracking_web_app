@@ -11,7 +11,7 @@ class LogModel
 
         // Get username
         $user = User::findById($db, $userID);
-        $username = $user ? $user['name'] : "User unknown (ID: $userID)";
+        $username = $user ? $user['username'] : "User unknown (ID: $userID)";
 
         // Final message
         $message = "$username - $message";

@@ -46,7 +46,7 @@ function save_lawyer($app, $lawyerID = null) {
             }
 
             if ($isEdit) { // update database
-                list($oldData, $newData) = Lawyer::update($lawyerID, $data);
+                $oldData = Lawyer::getLawyerByLawyerId($lawyerID);
                 
                 Lawyer::update($lawyerID, $data);
 

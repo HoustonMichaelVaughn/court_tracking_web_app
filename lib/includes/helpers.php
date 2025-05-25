@@ -50,3 +50,9 @@ function require_role($requiredRole) {
         exit();
     }
 }
+
+function get_logged_in_username($db) {
+    require_once __DIR__ . '/../models/User.php';
+    $user = User::findById($db, $_SESSION['user_id']);
+    return $user['username'] ?? 'Unknown';
+}
