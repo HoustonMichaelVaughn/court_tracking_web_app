@@ -111,10 +111,23 @@ function delete_defendant($app, $defendantID) {
         Defendant::delete($defendantID);
 
         $details = "Deleted defendant ID $defendantID. Details - ";
+
+        $fieldMap = [
+            'name'     => 'Name',
+            'dob'      => 'Date_of_Birth',
+            'address'  => 'Address',
+            'ethnicity'=> 'Ethnicity',
+            'phone'    => 'Phone_Number',
+            'email'    => 'Email',
+        ];
+
         $parts = [];
         foreach (DEFENDANT_FIELDS as $field) {
-            $parts[] = ucfirst($field) . ": '" . ($defendant[ucfirst($field)] ?? '') . "'";
+            $dbField = $fieldMap[$field];
+            $value = $defendant[$dbField] ?? '';
+            $parts[] = ucfirst($field) . ": '" . $value . "'";
         }
+        
         $details .= implode("; ", $parts);
 
         LogModel::log_action($_SESSION['user_id'], $details);

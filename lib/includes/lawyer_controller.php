@@ -99,10 +99,21 @@ function delete_lawyer($app, $lawyerID) {
         Lawyer::delete($lawyerID);
 
         $details = "Deleted lawyer ID $lawyerID. Details - ";
+
+        $fieldMap = [
+            'name' => 'Name',
+            'email' => 'Email',
+            'phone' => 'Phone_Number',
+            'firm' => 'Firm',
+        ];
+
         $parts = [];
         foreach (LAWYER_FIELDS as $field) {
-            $parts[] = ucfirst($field) . ": '" . ($lawyer[ucfirst($field)] ?? '') . "'";
+            $dbField = $fieldMap[$field];
+            $value = $lawyer[$dbField] ?? '';
+            $parts[] = ucfirst($field) . ": '" . $value . "'";
         }
+        
         $details .= implode("; ", $parts);
 
         LogModel::log_action($_SESSION['user_id'], $details);
