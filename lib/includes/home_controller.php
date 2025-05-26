@@ -4,7 +4,7 @@
 require_once __DIR__ . '/../models/CaseRecord.php';
 require_once __DIR__ . '/../includes/Database.php';
 
-function getRecentLogs($db, $limit = 5) {
+function getRecentLogs($db, $limit = 3) {
     $stmt = $db->prepare("
         SELECT logs.action, logs.created_at, users.username
         FROM logs
