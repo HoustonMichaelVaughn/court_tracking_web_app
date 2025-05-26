@@ -301,15 +301,16 @@ function handle_confirm_step($app) {
         $eventLocation = $firstEvent['location'] ?? 'N/A';
 
         $logMessage = sprintf(
-        "%s (UserID: %s) added a new case. Defendant: %s, Charges: %s, Courtroom: %s, Date: %s, Location: %s, Lawyer: %s",
+        "%s (UserID: %s) added a new case (CaseID: %s). Defendant: %s, Charges: %s, Courtroom: %s, Date: %s, Location: %s, Lawyer: %s",
         $username,
         $userId ?? 'Unknown',
-        $defendant['name'] ?? 'Unknown',
+        $caseID,
+        $defendant['Name'] ?? 'Unknown',
         $chargeText,
         $firstEvent['description'] ?? 'N/A',
         $eventDate,
         $eventLocation,
-        $lawyer['name'] ?? 'Unknown'
+        $lawyer['Name'] ?? 'Unknown'
         );
 
         // Log the action

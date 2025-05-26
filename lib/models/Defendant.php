@@ -123,7 +123,7 @@ class Defendant
     {
         $db = Database::getInstance()->getConnection();
 
-        $stmt = $db->prepare("SELECT * FROM Defendant WHERE defendant_ID = :defendantID");
+        $stmt = $db->prepare("SELECT * FROM defendant WHERE defendant_ID = :defendantID");
         $stmt->execute([':defendantID' => $defendantID]);
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
