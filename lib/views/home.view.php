@@ -36,21 +36,13 @@
       </div>
     </div>
     <div class="col-md-3">
-    <div class="card text-white bg-info h-100">
-      <div class="card-body text-center d-flex flex-column justify-content-center">
-        <h5 class="card-title">Resolved Cases</h5>
-        <p class="card-text fs-3"><?= htmlspecialchars($stats['resolved'] ?? 0) ?></p>
+      <div class="card text-white bg-secondary h-100">
+        <div class="card-body text-center d-flex flex-column justify-content-center">
+          <h5 class="card-title">Closed Cases</h5>
+          <p class="card-text fs-3"><?= htmlspecialchars($stats['closed'] ?? 0) ?></p>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="col-md-3">
-    <div class="card text-white bg-dark h-100">
-      <div class="card-body text-center d-flex flex-column justify-content-center">
-        <h5 class="card-title">Dismissed Cases</h5>
-        <p class="card-text fs-3"><?= htmlspecialchars($stats['dismissed'] ?? 0) ?></p>
-      </div>
-    </div>
-  </div>
   </div>
 </div>
 
@@ -70,26 +62,3 @@
     </div>
   </div>
 </div>
-
-<?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-<div class="container mb-5">
-  <h2 class="mb-4">Recent Logs</h2>
-  <?php if (!empty($logs)): ?>
-    <ol start="1" class="list-group list-group-numbered">
-      <?php foreach ($logs as $log): ?>
-        <li class="list-group-item">
-          <strong><?= htmlspecialchars($log['username']) ?></strong>
-          <span class="text-muted"> - <?= htmlspecialchars(date('Y-m-d H:i', strtotime($log['created_at']))) ?></span>
-          <br>
-          <?= htmlspecialchars($log['action']) ?>
-        </li>
-      <?php endforeach; ?>
-    </ol>
-    <div class="mt-3">
-      <a href="<?= BASE_URL ?>/logs" class="btn btn-primary btn-sm">Show More</a>
-    </div>
-  <?php else: ?>
-    <p>No logs to display.</p>
-  <?php endif; ?>
-</div>
-<?php endif; ?>

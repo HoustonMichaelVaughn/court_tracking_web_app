@@ -6,10 +6,4 @@ class User {
         $stmt->execute([$username]);
         return $stmt->fetch();
     }
-    
-    public static function findById($db, $id) {
-        $stmt = $db->prepare('SELECT * FROM users WHERE id = ?');
-        $stmt->execute([$id]);
-        return $stmt->fetch();
-    }
 } 

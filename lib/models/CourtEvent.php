@@ -39,6 +39,19 @@ class CourtEvent
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+public static function getUpcomingEvents()
+{
+    $db = Database::getInstance()->getConnection();
+
+    $stmt = $db->prepare("
+        SELECT * FROM court_event
+        WHERE Date >= CURDATE()
+        ORDER BY Date ASC
+    ");
+
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
 
     public static function delete($eventID) {

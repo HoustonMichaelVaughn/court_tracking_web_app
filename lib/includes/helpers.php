@@ -27,32 +27,3 @@ function cancel_case_wizard() {
     header("Location: " . BASE_URL . "/cases");
     exit;
 }
-
-function require_login() {
-    if (!isset($_SESSION)) {
-        session_start();
-    }
-
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: ' . BASE_URL . '/login');
-        exit();
-    }
-}
-
-function require_role($requiredRole) {
-    if (!isset($_SESSION)) {
-        session_start();
-    }
-
-    if (!isset($_SESSION['role']) || $_SESSION['role'] !== $requiredRole) {
-        http_response_code(403); // Forbidden
-        echo "<h1>403 Forbidden</h1><p>You do not have permission to view this page.</p>";
-        exit();
-    }
-}
-
-function get_logged_in_username($db) {
-    require_once __DIR__ . '/../models/User.php';
-    $user = User::findById($db, $_SESSION['user_id']);
-    return $user['username'] ?? 'Unknown';
-}

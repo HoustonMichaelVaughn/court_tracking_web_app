@@ -8,27 +8,21 @@ session_start();
 define('BASE_URL', '/court_tracking_web_app/public');
 
 require_once '../lib/includes/mouse.php';
-
+ 
 get('/', function($app) {
     require_once __DIR__ . '/../lib/includes/home_controller.php';
-    $data = getHomePageData();
-    // Pass all necessary data to your app render function
-    ($app->render)('standard', 'home', ['stats' => $data['stats'], 'logs' => $data['logs']]);
-
+    ($app->render)('standard', 'home', ['stats' => $stats]);
 });
 
 path('/cases', function($app) {
-    require_once __DIR__ . '/../lib/includes/helpers.php';
     ($app->render)('standard', 'manage_entities/manage_cases');
 });
 
 path('/defendants', function($app) {
-    require_once __DIR__ . '/../lib/includes/helpers.php';
     ($app->render)('standard', 'manage_entities/manage_defendants');
 });
 
 path('/lawyers', function($app) {
-    require_once __DIR__ . '/../lib/includes/helpers.php';
     ($app->render)('standard', 'manage_entities/manage_lawyers');
 });
 
@@ -77,5 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === BASE_UR
     require_once __DIR__ . '/../lib/includes/auth_controller.php';
     exit();
 }
-
+path('/dashboard', function($app) {
+    require_once __DIR__ . '/../lib/includes/dashboard_controller.php';
+});
 resolve();

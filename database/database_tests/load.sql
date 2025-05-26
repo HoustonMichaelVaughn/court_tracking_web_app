@@ -21,8 +21,8 @@ INSERT INTO charge (Case_ID, Description, Status)
 VALUES
 (1, 'Theft under $5000', 'Pending'),
 (1, 'Resisting Arrest', 'Pending'),
-(2, 'Assault Occasioning Actual Bodily Harm', 'Resolved'),
-(3, 'Fraudulent Misrepresentation', 'Active');
+(2, 'Assault Occasioning Actual Bodily Harm', 'Closed'),
+(3, 'Fraudulent Misrepresentation', 'Open');
 
 -- Insert into Lawyer table
 INSERT INTO Lawyer (Name, Email, Phone_Number, Firm)

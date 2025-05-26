@@ -44,26 +44,6 @@ class CaseRecord
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public static function getCaseDetailsByID($caseID)
-    {
-    $db = Database::getInstance()->getConnection();
-
-    $stmt = $db->prepare("
-        SELECT cr.case_ID, d.name AS defendant_name, l.name AS lawyer_name, 
-            ch.Description AS charge_type, ce.Description AS event_description, ce.Date AS event_date
-        FROM caserecord cr
-        LEFT JOIN defendant d ON cr.defendant_ID = d.defendant_ID
-        LEFT JOIN case_lawyer cl ON cr.case_ID = cl.case_ID
-        LEFT JOIN lawyer l ON cl.lawyer_ID = l.lawyer_ID
-        LEFT JOIN charge ch ON cr.case_ID = ch.case_ID
-        LEFT JOIN court_event ce ON cr.case_ID = ce.case_ID
-        WHERE cr.case_ID = :caseID
-    ");
-
-    $stmt->execute([':caseID' => $caseID]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
     public static function linkLawyer($caseID, $lawyerID)
     {
         $db = Database::getInstance()->getConnection();
@@ -80,32 +60,26 @@ class CaseRecord
     $stmt->execute();
     $total = $stmt->fetchColumn();
 
-    // Active (status = 'active')
-    $stmt = $pdo->prepare("SELECT COUNT(DISTINCT case_ID) FROM charge WHERE LOWER(status) = 'active'");
+    // Active (status = 'open' or 'active') from charge
+    $stmt = $pdo->prepare("SELECT COUNT(DISTINCT case_ID) FROM charge WHERE LOWER(status) IN ('open', 'active')");
     $stmt->execute();
     $active = $stmt->fetchColumn();
 
-    // Pending
+    // Pending from charge
     $stmt = $pdo->prepare("SELECT COUNT(DISTINCT case_ID) FROM charge WHERE LOWER(status) = 'pending'");
     $stmt->execute();
     $pending = $stmt->fetchColumn();
 
-    // Resolved
-    $stmt = $pdo->prepare("SELECT COUNT(DISTINCT case_ID) FROM charge WHERE LOWER(status) = 'resolved'");
+    // Closed from charge
+    $stmt = $pdo->prepare("SELECT COUNT(DISTINCT case_ID) FROM charge WHERE LOWER(status) = 'closed'");
     $stmt->execute();
-    $resolved = $stmt->fetchColumn();
-
-    // Dismissed
-    $stmt = $pdo->prepare("SELECT COUNT(DISTINCT case_ID) FROM charge WHERE LOWER(status) = 'dismissed'");
-    $stmt->execute();
-    $dismissed = $stmt->fetchColumn();
+    $closed = $stmt->fetchColumn();
 
     return [
         'total' => $total,
         'active' => $active,
         'pending' => $pending,
-        'resolved' => $resolved,
-        'dismissed' => $dismissed
+        'closed' => $closed
     ];
     }
 
