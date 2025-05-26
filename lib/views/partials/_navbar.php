@@ -11,21 +11,36 @@
         <li class="nav-item">
           <a class="nav-link" href="<?= BASE_URL ?>/dashboard">Dashboard</a>
         </li>
+
+        <!-- CASES -->
         <li class="nav-item">
-          <a class="nav-link" href="<?= BASE_URL ?>/cases">Manage Cases</a>
+          <a class="nav-link" href="<?= BASE_URL ?>/cases">
+            <?= (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') ? 'Manage Cases' : 'Cases' ?>
+          </a>
         </li>
+
+        <!-- DEFENDANTS -->
         <li class="nav-item">
-          <a class="nav-link" href="<?= BASE_URL ?>/defendants">Manage Defendants</a>
+          <a class="nav-link" href="<?= BASE_URL ?>/defendants">
+            <?= (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') ? 'Manage Defendants' : 'Defendants' ?>
+          </a>
         </li>
+
+        <!-- LAWYERS -->
         <li class="nav-item">
-          <a class="nav-link" href="<?= BASE_URL ?>/lawyers">Manage Lawyers</a>
+          <a class="nav-link" href="<?= BASE_URL ?>/lawyers">
+            <?= (isset($_SESSION['user_id']) && $_SESSION['role'] === 'admin') ? 'Manage Lawyers' : 'Lawyers' ?>
+          </a>
         </li>
+
         <li class="nav-item">
           <a class="nav-link" href="<?= BASE_URL ?>/reports">Reports</a>
         </li>
+
         <li class="nav-item">
           <a class="nav-link" href="<?= BASE_URL ?>/defendant/search">Search Defendants</a>
         </li>
+
         <li class="nav-item">
           <?php if (isset($_SESSION['user_id'])): ?>
             <a class="nav-link" href="<?= BASE_URL ?>/logout">Logout</a>
