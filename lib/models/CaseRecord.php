@@ -80,26 +80,32 @@ class CaseRecord
     $stmt->execute();
     $total = $stmt->fetchColumn();
 
-    // Active (status = 'open' or 'active') from charge
-    $stmt = $pdo->prepare("SELECT COUNT(DISTINCT case_ID) FROM charge WHERE LOWER(status) IN ('open', 'active')");
+    // Active (status = 'active')
+    $stmt = $pdo->prepare("SELECT COUNT(DISTINCT case_ID) FROM charge WHERE LOWER(status) = 'active'");
     $stmt->execute();
     $active = $stmt->fetchColumn();
 
-    // Pending from charge
+    // Pending
     $stmt = $pdo->prepare("SELECT COUNT(DISTINCT case_ID) FROM charge WHERE LOWER(status) = 'pending'");
     $stmt->execute();
     $pending = $stmt->fetchColumn();
 
-    // Closed from charge
-    $stmt = $pdo->prepare("SELECT COUNT(DISTINCT case_ID) FROM charge WHERE LOWER(status) = 'closed'");
+    // Resolved
+    $stmt = $pdo->prepare("SELECT COUNT(DISTINCT case_ID) FROM charge WHERE LOWER(status) = 'resolved'");
     $stmt->execute();
-    $closed = $stmt->fetchColumn();
+    $resolved = $stmt->fetchColumn();
+
+    // Dismissed
+    $stmt = $pdo->prepare("SELECT COUNT(DISTINCT case_ID) FROM charge WHERE LOWER(status) = 'dismissed'");
+    $stmt->execute();
+    $dismissed = $stmt->fetchColumn();
 
     return [
         'total' => $total,
         'active' => $active,
         'pending' => $pending,
-        'closed' => $closed
+        'resolved' => $resolved,
+        'dismissed' => $dismissed
     ];
     }
 

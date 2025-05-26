@@ -11,7 +11,10 @@ require_once '../lib/includes/mouse.php';
 
 get('/', function($app) {
     require_once __DIR__ . '/../lib/includes/home_controller.php';
-    ($app->render)('standard', 'home', ['stats' => $stats]);
+    $data = getHomePageData();
+    // Pass all necessary data to your app render function
+    ($app->render)('standard', 'home', ['stats' => $data['stats'], 'logs' => $data['logs']]);
+
 });
 
 path('/cases', function($app) {

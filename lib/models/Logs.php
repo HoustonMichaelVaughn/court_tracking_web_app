@@ -34,4 +34,16 @@ class LogModel
             error_log("Log error: " . $e->getMessage()); // You can also write this to a file
         }
     }
+
+    public static function getAllLogs() {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("
+        SELECT u.username, l.action, l.created_at
+        FROM logs l
+        LEFT JOIN users u ON l.user_id = u.id
+        ORDER BY l.created_at DESC
+    ");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

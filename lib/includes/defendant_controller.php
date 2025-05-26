@@ -76,7 +76,7 @@ function save_defendant($app, $defendantID = null) {
                 $successMessage = "Defendant edited successfully.";
 
             } else {
-                Defendant::create($data);
+                Defendant::create($data, true);
 
                 $details = [];
                 foreach (DEFENDANT_FIELDS as $field) {

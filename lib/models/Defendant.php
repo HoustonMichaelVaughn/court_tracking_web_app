@@ -52,8 +52,8 @@ class Defendant
             $defendantID
         );
 
-        LogModel::log_action($userId, $logMessage);
-
+            LogModel::log_action($userId, $logMessage);
+    
         return $defendantID;
     }
 }
