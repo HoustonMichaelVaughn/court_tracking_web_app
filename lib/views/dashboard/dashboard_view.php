@@ -9,7 +9,7 @@
             <?php endforeach; ?>
         </ul>
     </section>
-
+ 
     <section class="calendar">
         <h2>Upcoming Court Events</h2>
         <table border="1" cellpadding="5">
