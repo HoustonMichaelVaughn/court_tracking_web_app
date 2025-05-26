@@ -26,7 +26,37 @@ class Defendant
             ':phone'     => $data['phone'] ?? '',
             ':email'     => $data['email'] ?? ''
         ]);
+
+        $defendantID = $db->lastInsertId();
+
+        // Log the action
+        $userId = $_SESSION['user_id'] ?? null;
+        $username = 'Unknown User';
+        if ($userId !== null) {
+            $stmt = $db->prepare("SELECT username FROM users WHERE id = :id");
+            $stmt->execute([':id' => $userId]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($user && isset($user['username'])) {
+                $username = $user['username'];
+        }
+        $logMessage = sprintf(
+            "User %s (ID: %s) added new defendant: Name='%s', DOB='%s', Ethnicity='%s', Phone='%s', Address='%s', Email='%s' (Defendant ID: %s)",
+            $username,
+            $userId ?? 'N/A',
+            $data['name'],
+            $data['dob'],
+            $data['ethnicity'] ?? '',
+            $data['phone'] ?? '',
+            $data['address'] ?? '',
+            $data['email'] ?? '',
+            $defendantID
+        );
+
+        LogModel::log_action($userId, $logMessage);
+
+        return $defendantID;
     }
+}
 
     public function all(): array
     // returns all entries from database for dynamic drop down menus

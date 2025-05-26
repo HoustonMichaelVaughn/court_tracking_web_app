@@ -26,7 +26,34 @@ class Lawyer
             ':firm'  => $data['firm'] ?? ''
         ]);
 
-        return $db->lastInsertId();
+        $lawyerID = $db->lastInsertId();
+
+        // Log the action
+        $userId = $_SESSION['user_id'] ?? null;
+        $username = 'Unknown User';
+        if ($userId !== null) {
+            $stmtUser = $db->prepare("SELECT username FROM users WHERE id = :id");
+            $stmtUser->execute([':id' => $userId]);
+            $user = $stmtUser->fetch(PDO::FETCH_ASSOC);
+            if ($user && isset($user['username'])) {
+                $username = $user['username'];
+            }
+        }
+
+        $logMessage = sprintf(
+            "User %s (ID: %s) added new lawyer: Name='%s', Email='%s', Phone='%s', Firm='%s' (Lawyer ID: %s)",
+            $username,
+            $userId ?? 'N/A',
+            $data['name'],
+            $data['email'] ?? '',
+            $data['phone'] ?? '',
+            $data['firm'] ?? '',
+            $lawyerID
+        );
+
+        LogModel::log_action($userId, $logMessage);
+
+        return $lawyerID;
     }
 
     public function all(): array

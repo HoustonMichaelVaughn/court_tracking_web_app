@@ -277,12 +277,44 @@ function handle_confirm_step($app) {
         insert_case_events($db, $caseID, $data['events']);
 
         $db->commit();
-        unset($_SESSION['case']);
 
-        if ($userID) {
-    $defendantID = $data['defendant_ID'] ?? 'unknown';
-    LogModel::log_action($userID, "Added new defendant with ID {$defendantID}");
-}
+        $userId = $_SESSION['user_id'] ?? null;
+        $user = null;
+        $username = 'Unknown User';
+
+        if ($userId !== null) {
+            $user = User::findById($db, $userId); 
+            if ($user) {
+                $username = $user['username'];
+            }
+        }
+
+        $defendant = Defendant::getDefendantByDefendantID($data['defendant_ID']);
+        $lawyer = Lawyer::getLawyerByLawyerID($data['lawyer_ID']);
+        
+        $charges = array_map(fn($charge) => $charge['description'], $data['charges']);
+        $chargeText = implode(', ', $charges);
+
+        // Get the first event (for date & location if available)
+        $firstEvent = $data['events'][0] ?? ['date' => 'N/A', 'location' => 'N/A'];
+        $eventDate = $firstEvent['date'] ?? 'N/A';
+        $eventLocation = $firstEvent['location'] ?? 'N/A';
+
+        $logMessage = sprintf(
+        "%s (UserID: %s) added a new case. Defendant: %s, Charges: %s, Courtroom: %s, Date: %s, Location: %s, Lawyer: %s",
+        $username,
+        $userId ?? 'Unknown',
+        $defendant['name'] ?? 'Unknown',
+        $chargeText,
+        $firstEvent['description'] ?? 'N/A',
+        $eventDate,
+        $eventLocation,
+        $lawyer['name'] ?? 'Unknown'
+        );
+
+        // Log the action
+        LogModel::log_action($_SESSION['user_id'] ?? null, $logMessage);
+        unset($_SESSION['case']);
 
         header("Location: " . BASE_URL . "/case/success");
         exit;
@@ -360,15 +392,32 @@ function delete_case($app, $caseID) {
 
         // Step 4: Log the action
         $userID = $_SESSION['user_id'] ?? null;
+        $username = 'Unknown User';
+
+        if ($userID !== null) {
+            $db = Database::getInstance()->getConnection();
+            $user = User::findById($db, $userID);
+            if ($user) {
+                $username = $user['username'];
+            }
+        }
+
         if ($userID) {
             $eventSummaries = array_map(function($e) {
             return "{$e['description']} (on {$e['date']})";
             }, $events);
 
-            $summary = "Deleted case ID {$caseID} for defendant '{$defendant}'. "
-                . "Charges: " . implode(', ', $charges) . ". "
-                . "Events: " . implode(', ', $eventSummaries) . ". "
-                . "Lawyers: " . implode(', ', $lawyers) . ".";
+            $summary = sprintf(
+                "%s (UserID: %s) deleted case ID %s for defendant '%s'. Charges: %s. Events: %s. Lawyers: %s.",
+                $username,
+                $userID,
+                $caseID,
+                $defendant,
+                implode(', ', $charges),
+                implode(', ', $eventSummaries),
+                implode(', ', $lawyers)
+            );
+
             LogModel::log_action($userID, $summary);
         }
 
