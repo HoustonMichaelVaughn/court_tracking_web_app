@@ -45,7 +45,7 @@ VALUES
 (2, 'Melbourne Courtroom 3', 'Trial for assault occasioning actual bodily harm', '2025-06-15'),
 (3, 'Brisbane Courtroom 2', 'Hearing for fraudulent misrepresentation', '2025-07-20');
 
--- Test admin user for login
+-- admin user for login
 INSERT INTO users (username, password, role)
 VALUES (
   'admin',

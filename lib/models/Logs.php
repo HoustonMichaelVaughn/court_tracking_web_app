@@ -35,15 +35,26 @@ class LogModel
         }
     }
 
-    public static function getAllLogs() {
+    public static function getPaginatedLogs($limit, $offset)
+    {
         $db = Database::getInstance()->getConnection();
         $stmt = $db->prepare("
-        SELECT u.username, l.action, l.created_at
-        FROM logs l
-        LEFT JOIN users u ON l.user_id = u.id
-        ORDER BY l.created_at DESC
-    ");
+            SELECT u.username, l.action, l.created_at
+            FROM logs l
+            LEFT JOIN users u ON l.user_id = u.id
+            ORDER BY l.created_at DESC
+            LIMIT :limit OFFSET :offset
+        ");
+        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function countLogs()
+    {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->query("SELECT COUNT(*) FROM logs");
+        return $stmt->fetchColumn();
     }
 }

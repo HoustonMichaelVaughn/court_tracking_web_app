@@ -11,17 +11,21 @@
     <?php foreach ($charges as $charge): ?>
         <li>
             <?= htmlspecialchars($charge['Description']) ?> (Status: <?= htmlspecialchars($charge['Status']) ?>)
-            <a href="<?= BASE_URL ?>/charge/edit/<?= $charge['charge_ID'] ?>?caseID=<?= $caseID ?>" class="btn btn-sm btn-secondary">Edit</a>
-            <a href="<?= BASE_URL ?>/charge/delete/<?= $charge['charge_ID'] ?>?caseID=<?= $caseID ?>" 
-                class="btn btn-sm btn-danger"
-                onclick="return confirm('Are you sure you want to delete this charge?');">
-                Delete
-            </a>
+            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                <a href="<?= BASE_URL ?>/charge/edit/<?= $charge['charge_ID'] ?>?caseID=<?= $caseID ?>" class="btn btn-sm btn-secondary">Edit</a>
+                <a href="<?= BASE_URL ?>/charge/delete/<?= $charge['charge_ID'] ?>?caseID=<?= $caseID ?>" 
+                    class="btn btn-sm btn-danger"
+                    onclick="return confirm('Are you sure you want to delete this charge?');">
+                    Delete
+                </a>
+            <?php endif; ?>
         </li>
     <?php endforeach; ?>
 </ul>
 
-<a href="<?= BASE_URL ?>/charge/add?caseID=<?= $caseID ?>" class="btn btn-primary">Add Charge</a>
+<?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+  <a href="<?= BASE_URL ?>/charge/add?caseID=<?= $caseID ?>" class="btn btn-primary">Add Charge</a>
+<?php endif; ?>
 
 <hr>
 
@@ -30,15 +34,20 @@
     <?php foreach ($events as $event): ?>
         <li>
             <?= htmlspecialchars($event['Description']) ?> on <?= htmlspecialchars($event['Date']) ?> at <?= htmlspecialchars($event['Location']) ?>
-            <a href="<?= BASE_URL ?>/event/edit/<?= $event['Event_ID'] ?>?caseID=<?= $caseID ?>" class="btn btn-sm btn-secondary">Edit</a>
-            <a href="<?= BASE_URL ?>/event/delete/<?= $event['Event_ID'] ?>?caseID=<?= $caseID ?>" 
-                class="btn btn-sm btn-danger"
-                onclick="return confirm('Are you sure you want to delete this event?');">
-                Delete
-            </a>
+            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                <a href="<?= BASE_URL ?>/event/edit/<?= $event['Event_ID'] ?>?caseID=<?= $caseID ?>" class="btn btn-sm btn-secondary">Edit</a>
+                <a href="<?= BASE_URL ?>/event/delete/<?= $event['Event_ID'] ?>?caseID=<?= $caseID ?>" 
+                    class="btn btn-sm btn-danger"
+                    onclick="return confirm('Are you sure you want to delete this event?');">
+                    Delete
+                </a>
+            <?php endif; ?>
         </li>
     <?php endforeach; ?>
 </ul>
 
-<a href="<?= BASE_URL ?>/event/add?caseID=<?= $caseID ?>" class="btn btn-primary mt-3">Add Event</a>
+<?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+  <a href="<?= BASE_URL ?>/event/add?caseID=<?= $caseID ?>" class="btn btn-primary mt-3">Add Event</a>
+<?php endif; ?>
+
 <hr>

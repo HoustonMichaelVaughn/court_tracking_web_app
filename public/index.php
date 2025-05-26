@@ -26,6 +26,12 @@ path('/lawyers', function($app) {
     ($app->render)('standard', 'manage_entities/manage_lawyers');
 });
 
+path('/logs', function($app){
+    require_once __DIR__ . '/../lib/includes/logs_controller.php';
+    $controller = new LogController();
+    $controller->index($app);
+});
+
 // DATABASE REQUESTS
 path('/defendant/{action}', function($app, $action) {
     require_once __DIR__ . '/../lib/includes/defendant_controller.php';

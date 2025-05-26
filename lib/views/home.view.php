@@ -3,6 +3,10 @@
   <div class="container-fluid py-5">
     <h1 class="display-5 fw-bold">Welcome to the Court Outcome Tracking System</h1>
     <p class="col-md-8 fs-4">Log in or select a module from the menu to get started.</p>
+    <p class="fs-6 text-muted">
+      Track and manage court cases efficiently with real-time updates, automated conviction assessments, and secure role-based access. 
+      This system streamlines legal processes by centralising court data, reducing errors, and enhancing decision-making for law enforcement agencies.
+    </p>
   </div>
 </div>
 
@@ -47,18 +51,43 @@
 </div>
 
 
-<!-- Quick Actions -->
-<div class="container mb-5">
-  <h2 class="mb-4">Quick Actions</h2>
-  <div class="row g-3">
-    <div class="col-md-4">
-      <a href="<?= BASE_URL ?>/case/defendant" class="btn btn-outline-primary w-100">➕ Add Case</a>
-    </div>
-    <div class="col-md-4">
-      <a href="<?= BASE_URL ?>/defendant/add" class="btn btn-outline-success w-100">➕ Add Defendant</a>
-    </div>
-    <div class="col-md-4">
-      <a href="<?= BASE_URL ?>/lawyer/add" class="btn btn-outline-warning w-100">➕ Add Lawyer</a>
+<?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+  <!-- Quick Actions -->
+  <div class="container mb-5">
+    <h2 class="mb-4">Quick Actions</h2>
+    <div class="row g-3">
+      <div class="col-md-4">
+        <a href="<?= BASE_URL ?>/case/defendant" class="btn btn-outline-primary w-100">➕ Add Case</a>
+      </div>
+      <div class="col-md-4">
+        <a href="<?= BASE_URL ?>/defendant/add" class="btn btn-outline-success w-100">➕ Add Defendant</a>
+      </div>
+      <div class="col-md-4">
+        <a href="<?= BASE_URL ?>/lawyer/add" class="btn btn-outline-warning w-100">➕ Add Lawyer</a>
+      </div>
     </div>
   </div>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+<div class="container mb-5">
+  <h2 class="mb-4">Recent Logs</h2>
+  <?php if (!empty($logs)): ?>
+    <ol start="1" class="list-group list-group-numbered">
+      <?php foreach ($logs as $log): ?>
+        <li class="list-group-item">
+          <strong><?= htmlspecialchars($log['username']) ?></strong>
+          <span class="text-muted"> - <?= htmlspecialchars(date('Y-m-d H:i', strtotime($log['created_at']))) ?></span>
+          <br>
+          <?= htmlspecialchars($log['action']) ?>
+        </li>
+      <?php endforeach; ?>
+    </ol>
+    <div class="mt-3">
+      <a href="<?= BASE_URL ?>/logs" class="btn btn-primary btn-sm">Show More</a>
+    </div>
+  <?php else: ?>
+    <p>No logs to display.</p>
+  <?php endif; ?>
 </div>
+<?php endif; ?>
