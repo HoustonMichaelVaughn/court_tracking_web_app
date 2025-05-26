@@ -1,17 +1,15 @@
 <?php
-session_start();
-
 //  Context/This is here because going from C, to Django, to PHP makes me forget how words work.
 // ($app->render)('standard', 'home') is the weird way function calls happen in php sometimes.
 // This is done to avoid confusion with methods. In this case ->render is being called but is defined in compile_app()
 // Same occurs with ->set_message //
+
 define('BASE_URL', '/court_tracking_web_app/public');
 
 require_once '../lib/includes/mouse.php';
  
-get('/', function($app) {
+path('/', function($app) {
     require_once __DIR__ . '/../lib/includes/home_controller.php';
-    ($app->render)('standard', 'home', ['stats' => $stats]);
 });
 
 path('/cases', function($app) {
@@ -28,8 +26,6 @@ path('/lawyers', function($app) {
 
 path('/logs', function($app){
     require_once __DIR__ . '/../lib/includes/logs_controller.php';
-    $controller = new LogController();
-    $controller->index($app);
 });
 
 // DATABASE REQUESTS
@@ -73,11 +69,21 @@ path('/case/{action}/{caseID}', function($app, $action, $caseID) {
     require_once __DIR__ . '/../lib/includes/case_controller.php';
 });
 
+path('/login', function($app) {
+    ($app->render)('standard', 'authentication/login');
+});
+
+path('/login', function($app) {
+    require_once __DIR__ . '/auth_controller.php';
+});
+
+path('/logout', function($app) {
+    require_once __DIR__ . '/../lib/includes/logout.php';
+});
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === BASE_URL . '/index.php/login') {
     require_once __DIR__ . '/../lib/includes/auth_controller.php';
     exit();
 }
-path('/dashboard', function($app) {
-    require_once __DIR__ . '/../lib/includes/dashboard_controller.php';
-});
+
 resolve();

@@ -1,5 +1,10 @@
 <?php
+session_start();
+
 require_once __DIR__ . '/../models/Logs.php';
+
+$controller = new LogController();
+$controller->index($app);
 
 class LogController
 {

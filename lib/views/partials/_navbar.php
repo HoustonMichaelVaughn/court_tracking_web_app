@@ -9,9 +9,6 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a class="nav-link" href="<?= BASE_URL ?>/dashboard">Dashboard</a>
-        </li>
-        <li class="nav-item">
           <a class="nav-link" href="<?= BASE_URL ?>/cases">Manage Cases</a>
         </li>
         <li class="nav-item">

@@ -99,19 +99,3 @@ function resolve()
     http_response_code(404);
     ($app->render)('standard', '404');
 }
-
-get('/login', function ($app) {
-    ($app->render)('standard', 'authentication/login');
-});
-
-get('/dashboard', function ($app) {
-    ($app->render)('standard', 'home');
-});
-
-post('/login', function ($app) {
-    require_once __DIR__ . '/auth_controller.php';
-});
-
-get('/logout', function ($app) {
-    require_once __DIR__ . '/logout.php';
-});
