@@ -3,7 +3,8 @@
 
 require_once __DIR__ . '/../models/CaseRecord.php';
 
-function getRecentLogs($db, $limit = 3) {
+function getRecentLogs($db, $limit = 3)
+{
     $stmt = $db->prepare("
         SELECT logs.action, logs.created_at, users.username
         FROM logs
@@ -16,7 +17,8 @@ function getRecentLogs($db, $limit = 3) {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function getHomePageData() {
+function getHomePageData()
+{
     $db = Database::getInstance()->getConnection();
     $stats = CaseRecord::getStatistics($db);
     $logs = getRecentLogs($db);
