@@ -69,37 +69,21 @@ path('/case/{action}/{caseID}', function($app, $action, $caseID) {
     require_once __DIR__ . '/../lib/includes/case_controller.php';
 });
 
+require_once __DIR__ . '/../lib/includes/auth_controller.php'; // for authentication
+
+// display login page
 path('/login', function($app) {
-    ($app->render)('standard', 'authentication/login');
+    login_page($app);
 });
 
-path('/login', function($app) {
-    require_once __DIR__ . '/auth_controller.php';
+// handle login form submission
+path('/login/submit', function($app) {
+    login_user();
 });
 
+// handles logout
 path('/logout', function($app) {
-    require_once __DIR__ . '/../lib/includes/logout.php';
+    logout_user();
 });
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === BASE_URL . '/index.php/login') {
-    require_once __DIR__ . '/../lib/includes/auth_controller.php';
-    exit();
-}
-
-path('/login', function($app) {
-    ($app->render)('standard', 'authentication/login');
-});
-
-path('/register', function($app) {
-    require_once __DIR__ . '/../lib/includes/helpers.php';
-    require_login();      // Only admins allowed
-    require_role('admin');
-    ($app->render)('standard', 'authentication/register');
-});
-
-path('/register/submit', function($app) {
-    require_once __DIR__ . '/../lib/includes/register_controller.php';
-});
-
 
 resolve();

@@ -7,7 +7,7 @@ class Database
     private $host = 'localhost';
     private $dbname = 'court_tracking_system';
     private $username = 'root';
-    private $password = '';
+    private $password = 'defb29ad6c520227685b5b14feacf23f';
 
     private function __construct()
     {

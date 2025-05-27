@@ -1,22 +1,25 @@
 <?php
+require_once __DIR__ . '/../models/Auth.php';  // loads the Auth class
 session_start();
 
-require_once __DIR__ . '/../models/User.php';
-require_once __DIR__ . '/Database.php';
+function login_page($app) {
+    ($app->render)("standard", "authentication/login");
+}
 
-$conn = Database::getInstance()->getConnection(); // <-- ADD THIS
+function login_user() {
+    try {
+        Auth::login($_POST['username'], $_POST['password']);
+        header("Location: " . BASE_URL . "/");
+        exit;
+    } catch (Exception $e) {
+        $_SESSION['error'] = $e->getMessage();
+        header("Location: " . BASE_URL . "/login");
+        exit;
+    }
+}
 
-$username = $_POST['username'];
-$password = $_POST['password'];
-
-$user = User::findByUsername($conn, $username);
-
-if ($user && password_verify($password, $user['password'])) {
-    $_SESSION['user_id'] = $user['id'];
-    $_SESSION['role'] = $user['role'];
-
-    header('Location: ' . BASE_URL . '/index.php/dashboard');
-    exit();
-} else {
-    echo 'Invalid credentials';
+function logout_user() {
+    Auth::logout();
+    header("Location: " . BASE_URL . "/login");
+    exit;
 }
