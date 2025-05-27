@@ -1,3 +1,4 @@
+DROP DATABASE IF EXISTS court_tracking_system;
 CREATE DATABASE court_tracking_system;
 USE court_tracking_system;
 
