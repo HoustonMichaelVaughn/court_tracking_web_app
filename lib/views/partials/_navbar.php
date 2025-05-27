@@ -7,15 +7,19 @@
     </button>
     
     <div class="collapse navbar-collapse" id="navbarNav">
+      <?php
+      $role = $_SESSION['role'] ?? 'viewer';
+      ?>
+
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a class="nav-link" href="<?= BASE_URL ?>/cases">Manage Cases</a>
+          <a class="nav-link" href="<?= BASE_URL ?>/cases"><?= $role === 'admin' ? 'Manage Cases' : 'Cases' ?></a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="<?= BASE_URL ?>/defendants">Manage Defendants</a>
+          <a class="nav-link" href="<?= BASE_URL ?>/defendants"><?= $role === 'admin' ? 'Manage Defendants' : 'Defendants' ?></a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="<?= BASE_URL ?>/lawyers">Manage Lawyers</a>
+          <a class="nav-link" href="<?= BASE_URL ?>/lawyers"><?= $role === 'admin' ? 'Manage Lawyers' : 'Lawyers' ?></a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="<?= BASE_URL ?>/defendant/search">Search Defendants</a>

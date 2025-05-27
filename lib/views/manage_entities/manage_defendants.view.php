@@ -1,3 +1,10 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+include_once __DIR__ . '/../partials/_navbar.php';
+?>
+
 <a href="<?= BASE_URL ?>/" class="btn btn-outline-secondary mb-3">← Back</a>
 
 <?php if (!empty($_GET['success'])): ?>

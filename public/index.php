@@ -86,4 +86,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === BASE_UR
     exit();
 }
 
+path('/login', function($app) {
+    ($app->render)('standard', 'authentication/login');
+});
+
+path('/register', function($app) {
+    require_once __DIR__ . '/../lib/includes/helpers.php';
+    require_login();      // Only admins allowed
+    require_role('admin');
+    ($app->render)('standard', 'authentication/register');
+});
+
+path('/register/submit', function($app) {
+    require_once __DIR__ . '/../lib/includes/register_controller.php';
+});
+
+
 resolve();
