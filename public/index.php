@@ -7,7 +7,6 @@
 define('BASE_URL', '/court_tracking_web_app/public');
 
 require_once '../lib/includes/mouse.php';
-require_once __DIR__ . '/../lib/includes/auth_controller.php'; // for authentication
  
 path('/', function($app) {
     require_once __DIR__ . '/../lib/includes/home_controller.php';
@@ -70,10 +69,7 @@ path('/case/{action}/{caseID}', function($app, $action, $caseID) {
     require_once __DIR__ . '/../lib/includes/case_controller.php';
 });
 
-// if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === BASE_URL . '/index.php/login') {
-//     require_once __DIR__ . '/../lib/includes/auth_controller.php';
-//     exit();
-// }
+require_once __DIR__ . '/../lib/includes/auth_controller.php'; // for authentication
 
 // display login page
 path('/login', function($app) {
