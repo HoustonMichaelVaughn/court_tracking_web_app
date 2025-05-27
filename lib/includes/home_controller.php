@@ -5,6 +5,12 @@ if (session_status() === PHP_SESSION_NONE) {
 
 require_once __DIR__ . '/../models/CaseRecord.php';
 require_once __DIR__ . '/../models/CourtEvent.php';
+require_once __DIR__ . '/../models/Auth.php';
+
+if (!Auth::isAuthenticated()) {
+    header("Location: " . BASE_URL . "/login");
+    exit;
+}
 
 // Example announcements (replace with model later)
 $announcements = [
