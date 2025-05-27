@@ -1,4 +1,4 @@
-<form action="<?= BASE_URL ?>/index.php/login" method="post">
+<form method="POST" action="<?= BASE_URL ?>/login/submit">
   <input type="text" name="username" placeholder="Username" required>
   <input type="password" name="password" placeholder="Password" required>
   <button type="submit">Login</button>
