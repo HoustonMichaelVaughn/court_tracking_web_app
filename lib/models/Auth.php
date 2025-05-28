@@ -9,7 +9,9 @@ class Auth {
         $stmt->execute([$username]);
         $user = $stmt->fetch();
 
-        if (!$user) throw new Exception("User not found");
+        if (!$user) {
+            throw new Exception("User not found");
+        }
 
         if (!password_verify($password, $user['password'])) {
             throw new Exception("Invalid credentials");
@@ -18,6 +20,7 @@ class Auth {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['role'] = $user['role'];
         $_SESSION['staff_type'] = $user['staff_type'];
+
         return true;
     }
 
@@ -57,4 +60,4 @@ class Auth {
     public static function isAdmin() {
         return isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
     }
-
+}
