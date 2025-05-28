@@ -31,6 +31,11 @@
           <li class="nav-item">
             <a class="nav-link" href="<?= BASE_URL ?>/defendant/search">Search Defendants</a>
           </li>
+          <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+            <li class="nav-item">
+              <a class="nav-link" href="<?= BASE_URL ?>/register">Register Staff</a>
+            </li>
+          <?php endif; ?>
         </ul>
 
         <ul class="navbar-nav ms-auto">

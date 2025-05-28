@@ -23,3 +23,29 @@ function logout_user() {
     header("Location: " . BASE_URL . "/login");
     exit;
 }
+
+// registration system:
+
+function register_page($app) {
+    if (!Auth::isAuthenticated() || !Auth::isAdmin()) {
+        header("Location: " . BASE_URL . "/");
+        exit;
+    }
+
+    ($app->render)("standard", "authentication/register");
+}
+
+function register_user() {
+    try {
+        $staffType = $_POST['staff_type'];
+        $role = ($staffType === 'admin') ? 'admin' : 'user';
+
+        Auth::register($_POST['username'], $_POST['password'], $_POST['confirm'], $role);
+        header("Location: " . BASE_URL . "/login");
+        exit;
+    } catch (Exception $e) {
+        $_SESSION['error'] = $e->getMessage();
+        header("Location: " . BASE_URL . "/register");
+        exit;
+    }
+}
