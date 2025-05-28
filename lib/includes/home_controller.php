@@ -6,6 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once __DIR__ . '/../models/CaseRecord.php';
 require_once __DIR__ . '/../models/CourtEvent.php';
 require_once __DIR__ . '/../models/Auth.php';
+require_once __DIR__ . '/../models/Logs.php';
 
 if (!Auth::isAuthenticated()) {
     header("Location: " . BASE_URL . "/login");
@@ -25,10 +26,18 @@ $events = getUpcomingCourtEvents();
 //     'announcements' => $announcements
 // ]);
 
+$db = Database::getInstance()->getConnection();
+$stats = CaseRecord::getStatistics($db);
+
+$logs = getRecentLogs($db);
+
 ($app->render)(
     'standard', 
     'home', 
-    //['stats' => $stats]
+    [
+        'stats' => $stats,
+        'logs' => $logs
+    ]
 );
 
 
