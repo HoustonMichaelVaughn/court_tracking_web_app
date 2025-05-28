@@ -87,7 +87,6 @@ path('/logout', function($app) {
 });
 
 // registration:
-
 path('/register', function($app) {
     register_page($app);
 });

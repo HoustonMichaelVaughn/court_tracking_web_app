@@ -40,7 +40,6 @@ $logs = getRecentLogs($db);
     ]
 );
 
-
 function getRecentLogs($db, $limit = 3)
 {
     $stmt = $db->prepare("

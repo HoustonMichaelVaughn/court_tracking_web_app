@@ -31,10 +31,6 @@ class Auth {
         return isset($_SESSION['user_id']);
     }
 
-    private static function get_db() {
-        return new PDO("mysql:host=localhost;dbname=court_tracking_system", "root", "");
-    }
-
     public static function register($username, $password, $confirm) {
         if ($password !== $confirm) {
             throw new Exception("Passwords do not match.");
