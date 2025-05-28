@@ -52,8 +52,8 @@ class Auth {
         $staffType = $_POST['staff_type'];
         $role = ($staffType === 'admin') ? 'admin' : 'user';
 
-        $stmt = $db->prepare("INSERT INTO users (username, password, role, staff_type) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$username, $hash, $role, $staffType]);
+        $stmt = $db->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, ?)");
+        $stmt->execute([$username, $hash, $role]);
     }
 
     public static function isAdmin() {
