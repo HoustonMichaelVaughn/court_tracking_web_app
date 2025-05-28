@@ -1,6 +1,8 @@
+<?php if (session_status() === PHP_SESSION_NONE) session_start(); ?>
+
 <div class="container d-flex justify-content-center mt-5">
   <div class="card shadow p-4" style="width: 100%; max-width: 400px;">
-    <h3 class="text-center mb-3">Register Court Officer</h3>
+    <h3 class="text-center mb-3">Register a New Staff Account</h3>
 
     <?php if (!empty($_SESSION['error'])): ?>
       <div class="alert alert-danger"><?= $_SESSION['error'] ?></div>
@@ -27,7 +29,7 @@
             <option value="admin">Admin</option>
         </select>
       </div>
-      <button type="submit" class="btn btn-primary w-100">Register Officer</button>
+      <button type="submit" class="btn btn-primary w-100">Register</button>
     </form>
   </div>
 </div>
