@@ -16,7 +16,6 @@ class Auth {
         if (!password_verify($password, $user['password'])) {
             throw new Exception("Invalid credentials");
         }
-
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['role'] = $user['role'];
         $_SESSION['staff_type'] = $user['staff_type'];
@@ -31,17 +30,20 @@ class Auth {
     public static function isAuthenticated() {
         return isset($_SESSION['user_id']);
     }
+<<<<<<< HEAD
 
     private static function get_db() {
         return new PDO("mysql:host=localhost;dbname=court_tracking_system", "root", "");
     }
+=======
+>>>>>>> 573c7e9436d557474ba6189e7375f01c9dcc3158
 
     public static function register($username, $password, $confirm) {
         if ($password !== $confirm) {
             throw new Exception("Passwords do not match.");
         }
 
-        $db = self::get_db();
+        $db = Database::getInstance()->getConnection();
         $stmt = $db->prepare("SELECT * FROM users WHERE username = ?");
         $stmt->execute([$username]);
 
@@ -53,8 +55,8 @@ class Auth {
         $staffType = $_POST['staff_type'];
         $role = ($staffType === 'admin') ? 'admin' : 'user';
 
-        $stmt = $db->prepare("INSERT INTO users (username, password, role, staff_type) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$username, $hash, $role, $staffType]);
+        $stmt = $db->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, ?)");
+        $stmt->execute([$username, $hash, $role]);
     }
 
     public static function isAdmin() {
