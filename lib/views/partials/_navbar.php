@@ -1,3 +1,5 @@
+<?php if (session_status() === PHP_SESSION_NONE) session_start(); ?>
+
 <?php
   $isLoginPage = str_contains($_SERVER['REQUEST_URI'], '/login');
   $loggedIn = isset($_SESSION['user_id']);
@@ -39,9 +41,15 @@
         </ul>
 
         <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="<?= BASE_URL ?>/logout">Logout</a>
-          </li>
+          <?php if (isset($_SESSION['user_id'])): ?>
+            <li class="nav-item">
+              <a class="nav-link" href="<?= BASE_URL ?>/logout">Logout</a>
+            </li>
+          <?php else: ?>
+            <li class="nav-item">
+              <a class="nav-link" href="<?= BASE_URL ?>/login">Login</a>
+            </li>
+          <?php endif; ?>
         </ul>
       </div>
     </div>

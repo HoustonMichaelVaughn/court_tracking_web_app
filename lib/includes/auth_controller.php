@@ -41,7 +41,10 @@ function register_user() {
         $role = ($staffType === 'admin') ? 'admin' : 'user';
 
         Auth::register($_POST['username'], $_POST['password'], $_POST['confirm'], $role);
-        header("Location: " . BASE_URL . "/login");
+
+        // Don't log out the current user — stay logged in and redirect to staff management
+        $_SESSION['success'] = "Staff registered successfully.";
+        header("Location: " . BASE_URL . "/");
         exit;
     } catch (Exception $e) {
         $_SESSION['error'] = $e->getMessage();

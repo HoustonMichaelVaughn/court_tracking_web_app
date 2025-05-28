@@ -1,3 +1,10 @@
+<?php if (session_status() === PHP_SESSION_NONE) session_start(); ?>
+
+<?php if (!empty($_SESSION['success'])): ?>
+  <div class="alert alert-success"><?= $_SESSION['success'] ?></div>
+  <?php unset($_SESSION['success']); ?>
+<?php endif; ?>
+
 <!-- lib/views/home.view.php -->
 <div class="p-5 mb-4 bg-light rounded-3">
   <div class="container-fluid py-5">
