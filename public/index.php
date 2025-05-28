@@ -90,4 +90,14 @@ path('/logout', function($app) {
     logout_user();
 });
 
+// registration:
+
+path('/register', function($app) {
+    register_page($app);
+});
+
+path('/register/submit', function($app) {
+    register_user();
+});
+
 resolve();
