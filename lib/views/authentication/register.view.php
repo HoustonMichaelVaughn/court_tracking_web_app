@@ -23,9 +23,7 @@
       <div class="mb-3">
         <label class="form-label">Staff Type</label>
         <select name="staff_type" class="form-select" required>
-            <option value="officer">Officer</option>
-            <option value="clerk">Clerk</option>
-            <option value="coordinator">Coordinator</option>
+            <option value="user">User</option>
             <option value="admin">Admin</option>
         </select>
       </div>

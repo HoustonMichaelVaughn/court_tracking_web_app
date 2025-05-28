@@ -37,7 +37,10 @@ function register_page($app) {
 
 function register_user() {
     try {
-        Auth::register($_POST['username'], $_POST['password'], $_POST['confirm']);
+        $staffType = $_POST['staff_type'];
+        $role = ($staffType === 'admin') ? 'admin' : 'user';
+
+        Auth::register($_POST['username'], $_POST['password'], $_POST['confirm'], $role);
         header("Location: " . BASE_URL . "/login");
         exit;
     } catch (Exception $e) {
