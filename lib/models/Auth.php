@@ -1,8 +1,9 @@
 <?php
+require_once __DIR__ . '/../includes/Database.php';
 
 class Auth {
     public static function login($username, $password) {
-        $db = self::get_db();
+        $db = Database::getInstance()->getConnection();
 
         $stmt = $db->prepare("SELECT * FROM users WHERE username = ?");
         $stmt->execute([$username]);
@@ -27,6 +28,7 @@ class Auth {
     public static function isAuthenticated() {
         return isset($_SESSION['user_id']);
     }
+<<<<<<< HEAD
 
     private static function get_db() {
         return new PDO("mysql:host=localhost;dbname=court_tracking_system", "root", "");
@@ -56,4 +58,6 @@ class Auth {
     public static function isAdmin() {
         return isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
     }
+=======
+>>>>>>> 9f39e63528c7ce3aa2c6d724a783392dc894fc63
 }
