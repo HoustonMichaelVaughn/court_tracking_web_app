@@ -14,7 +14,6 @@ class Auth {
         if (!password_verify($password, $user['password'])) {
             throw new Exception("Invalid credentials");
         }
-
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['role'] = $user['role'];
         $_SESSION['staff_type'] = $user['staff_type'];
@@ -46,8 +45,8 @@ class Auth {
         $staffType = $_POST['staff_type'];
         $role = ($staffType === 'admin') ? 'admin' : 'user';
 
-        $stmt = $db->prepare("INSERT INTO users (username, password, role, staff_type) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$username, $hash, $role, $staffType]);
+        $stmt = $db->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, ?)");
+        $stmt->execute([$username, $hash, $role]);
     }
 
     public static function isAdmin() {
