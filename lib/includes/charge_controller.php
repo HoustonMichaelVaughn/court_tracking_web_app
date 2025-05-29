@@ -17,13 +17,13 @@ require_once __DIR__ . '/../models/Logs.php';
 // Route internally within charge_controller
 switch ($action) {
     case 'edit':
-        save_charge($app, $chargeID);
+        save_charge($app, $id);
         break;
     case 'add':
         save_charge($app);
         break;
     case 'delete':
-        delete_charge($app, $chargeID);
+        delete_charge($app, $id);
         break;
     default:
         ($app->render)('standard', '404');
@@ -33,8 +33,8 @@ switch ($action) {
 // Add and edit functionality combined into single function
 function save_charge($app, $chargeID = null) {
     try {
-        $id = $_GET['caseID'] ?? null;
-        if (!$id) {
+        $caseID = $_GET['caseID'] ?? null;
+        if (!$caseID) {
             throw new Exception("Case ID required.");
         }
 
@@ -82,7 +82,7 @@ function save_charge($app, $chargeID = null) {
         LogModel::log_action($userID, $logMessage);
         $successMessage = "Charge updated successfully.";
         } else {
-        Charge::create($caseID, $data);
+            Charge::create($caseID, $data);
 
             $userID = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
             $username = $_SESSION['username'] ?? 'unknown';
@@ -105,7 +105,7 @@ function save_charge($app, $chargeID = null) {
 
         // GET request: render form
         ($app->render)('standard', 'forms/charge_form', [
-            'caseID' => $id,
+            'caseID' => $caseID,
             'charge' => $charge,
             'isEdit' => $isEdit,
         ]);
@@ -116,16 +116,16 @@ function save_charge($app, $chargeID = null) {
     }
 }
 
-function delete_charge($app, $chargeID) {
+function delete_charge($app, $id) {
     try {
-        $id = $_GET['caseID'] ?? null;
-        if (!$id) {
+        $caseID = $_GET['caseID'] ?? null;
+        if (!$caseID) {
             throw new Exception("Case ID required.");
         }
 
     
         // Fetch charge details before deleting
-        $charge = Charge::getChargeByChargeID($chargeID);
+        $charge = Charge::getChargeByChargeID($id);
         if (!$charge) {
             throw new Exception("Charge not found.");
         }
@@ -136,10 +136,10 @@ function delete_charge($app, $chargeID) {
         
         // perform database operation
 
-        Charge::delete($chargeID);
-        redirect_with_success("/case/edit/" . $id, "Charge deleted successfully.");
+        Charge::delete($id);
+        redirect_with_success("/case/edit/" . $caseID, "Charge deleted successfully.");
 
-        $details = "Deleted charge ID $chargeID from case ID $caseID. \n ";
+        $details = "Deleted charge ID $id from case ID $caseID. \n ";
         $details .= "Details - Description: '{$charge['Description']}',\n Status: '{$charge['Status']}'.";
 
         LogModel::log_action($_SESSION['user_id'], $details);
