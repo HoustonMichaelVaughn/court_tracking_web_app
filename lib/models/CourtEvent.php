@@ -20,12 +20,12 @@ class CourtEvent
         ]);
     }
 
-    public static function getEventsByCaseID($caseID)
+    public static function getEventsByCaseID($id)
     {
         $db = Database::getInstance()->getConnection();
 
         $stmt = $db->prepare("SELECT * FROM court_event WHERE case_ID = :caseID");
-        $stmt->execute([':caseID' => $caseID]);
+        $stmt->execute([':caseID' => $id]);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

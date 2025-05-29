@@ -26,10 +26,10 @@ require_once __DIR__ . '/../includes/helpers.php';
 switch ($action) {
     // direct user to correct page
     case 'edit':
-        save_defendant($app, $defendantID);
+        save_defendant($app, $id);
         break;
     case 'delete':
-        delete_defendant($app, $defendantID);
+        delete_defendant($app, $id);
         break;
     case 'add':
         save_defendant($app);
@@ -45,13 +45,13 @@ switch ($action) {
         exit;
 }
 
-function save_defendant($app, $defendantID = null) {
+function save_defendant($app, $id = null) {
     // edit and add functionality combined into a single function
 
     try {
         // do not define defendantID if using for adding
-        $isEdit = !is_null($defendantID);
-        $defendant = $isEdit ? Defendant::getDefendantByDefendantId($defendantID) : null;
+        $isEdit = !is_null($id);
+        $defendant = $isEdit ? Defendant::getDefendantByDefendantId($id) : null;
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = extract_post_data(DEFENDANT_FIELDS);
@@ -62,7 +62,7 @@ function save_defendant($app, $defendantID = null) {
             }
 
             if ($isEdit) { // update database
-                Defendant::update($defendantID, $data);
+                Defendant::update($id, $data);
                 $successMessage = "Defendant edited successfully.";
             } else {
                 Defendant::create($data);
@@ -81,10 +81,10 @@ function save_defendant($app, $defendantID = null) {
     }
 }
 
-function delete_defendant($app, $defendantID) {
+function delete_defendant($app, $id) {
     try {
         // update database
-        Defendant::delete($defendantID);
+        Defendant::delete($id);
 
         // Keep user on same page
         redirect_with_success("/defendant/manage", "Defendant deleted successfully.");

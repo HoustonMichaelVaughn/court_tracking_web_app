@@ -19,12 +19,12 @@ class Charge
         ]);
     }
 
-    public static function getChargesByCaseID($caseID)
+    public static function getChargesByCaseID($id)
     {
         $db = Database::getInstance()->getConnection();
 
         $stmt = $db->prepare("SELECT * FROM charge WHERE case_ID = :caseID");
-        $stmt->execute([':caseID' => $caseID]);
+        $stmt->execute([':caseID' => $id]);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

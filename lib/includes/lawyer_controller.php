@@ -24,10 +24,10 @@ require_once __DIR__ . '/../includes/helpers.php';
 switch ($action) {
     // direct user to correct page
     case 'edit':
-        save_lawyer($app, $lawyerID);
+        save_lawyer($app, $id);
         break;
     case 'delete':
-        delete_lawyer($app, $lawyerID);
+        delete_lawyer($app, $id);
         break;
     case 'add':
         save_lawyer($app);
@@ -40,12 +40,12 @@ switch ($action) {
         exit;
 }
 
-function save_lawyer($app, $lawyerID = null) {
+function save_lawyer($app, $id = null) {
     // edit and add functionality combined into a single function
     try {
         // do not define defendantID if using for adding
-        $isEdit = !is_null($lawyerID);
-        $lawyer = $isEdit ? Lawyer::getLawyerByLawyerId($lawyerID) : null;
+        $isEdit = !is_null($id);
+        $lawyer = $isEdit ? Lawyer::getLawyerByLawyerId($id) : null;
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = extract_post_data(LAWYER_FIELDS);
@@ -56,7 +56,7 @@ function save_lawyer($app, $lawyerID = null) {
             }
 
             if ($isEdit) { // update database
-                Lawyer::update($lawyerID, $data);
+                Lawyer::update($id, $data);
                 $successMessage = "Lawyer updated successfully.";
             } else {
                 Lawyer::create($data);
@@ -76,9 +76,9 @@ function save_lawyer($app, $lawyerID = null) {
 }
 
 
-function delete_lawyer($app, $lawyerID) {
+function delete_lawyer($app, $id) {
 
-    Lawyer::delete($lawyerID);
+    Lawyer::delete($id);
 
     // Keep user on same page
     redirect_with_success("/lawyer/manage", "Lawyer deleted successfully.");

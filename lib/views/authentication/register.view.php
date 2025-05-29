@@ -15,6 +15,7 @@ function h($val) {
 <?php endif; ?>
 
 <form method="POST" action="/register">
+    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
     <label for="username">Username:</label>
     <input type="text" name="username" id="username" required
            value="<?= isset($_POST['username']) ? h($_POST['username']) : '' ?>">

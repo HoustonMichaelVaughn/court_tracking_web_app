@@ -32,8 +32,8 @@ switch ($action) {
 // combined function for adding and editing for DRY
 function save_event($app, $eventID = null) {
     try {
-        $caseID = $_GET['caseID'] ?? null;
-        if (!$caseID) {
+        $id = $_GET['caseID'] ?? null;
+        if (!$id) {
             throw new Exception("CaseID required.");
         }
     
@@ -66,16 +66,16 @@ function save_event($app, $eventID = null) {
                 CourtEvent::update($eventID, $data);
                 $successMessage = "Event updated successfully.";
             } else {
-                CourtEvent::create($caseID, $data);
+                CourtEvent::create($id, $data);
                 $successMessage = "Event added successfully.";
             }
     
-            redirect_with_success("/case/edit/" . $caseID, $successMessage);
+            redirect_with_success("/case/edit/" . $id, $successMessage);
         }
         
         // for GET request, display standard form
         ($app->render)('standard', 'forms/event_form', [
-            'caseID' => $caseID,
+            'caseID' => $id,
             'event' => $event,
             'isEdit' => $isEdit,
         ]);      
@@ -87,15 +87,15 @@ function save_event($app, $eventID = null) {
 
 function delete_event($app, $eventID) {
     try {
-        $caseID = $_GET['caseID'] ?? null;
-        if (!$caseID) {
+        $id = $_GET['caseID'] ?? null;
+        if (!$id) {
             throw new Exception("CaseID required.");
         }
         
         // database operation
         CourtEvent::delete($eventID);
 
-        redirect_with_success("/case/edit/" . $caseID, "Event deleted successfully.");
+        redirect_with_success("/case/edit/" . $id, "Event deleted successfully.");
         
     } catch (Exception $e) {
         render_error($app, $e->getMessage());

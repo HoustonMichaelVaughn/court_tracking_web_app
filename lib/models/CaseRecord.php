@@ -14,18 +14,18 @@ class CaseRecord
         return $db->lastInsertId();
     }
 
-    public static function deleteCaseByID($caseID)
+    public static function deleteCaseByID($id)
     {
         $db = Database::getInstance()->getConnection();
 
         // Validate caseID
-        if (empty($caseID) || !is_numeric($caseID)) {
+        if (empty($id) || !is_numeric($id)) {
             throw new InvalidArgumentException("Invalid Case ID.");
         }
 
         // Delete the case itself
         $stmt = $db->prepare("DELETE FROM caserecord WHERE case_ID = :caseID");
-        $stmt->execute([':caseID' => $caseID]);
+        $stmt->execute([':caseID' => $id]);
     }
 
     public static function getAllCasesWithDetails()
@@ -44,11 +44,11 @@ class CaseRecord
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public static function linkLawyer($caseID, $lawyerID)
+    public static function linkLawyer($id, $lawyerID)
     {
         $db = Database::getInstance()->getConnection();
         $stmt = $db->prepare("INSERT INTO case_lawyer (case_ID, lawyer_ID) VALUES (?, ?)");
-        $stmt->execute([$caseID, $lawyerID]);
+        $stmt->execute([$id, $lawyerID]);
     }
 
     public static function getStatistics() {

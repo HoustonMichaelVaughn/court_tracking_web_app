@@ -46,13 +46,13 @@ switch ($action) {
         show_manage_cases($app);
         break;
     case 'edit':
-        edit_case($app, $caseID);
+        edit_case($app, $id);
         break;
     case 'cancel':
         cancel_case_wizard();
         break;
     case 'delete':
-        delete_case($app, $caseID);
+        delete_case($app, $id);
         break;
     default:
         ($app->render)('standard', '404');
@@ -274,16 +274,16 @@ function handle_confirm_step($app) {
         $db->beginTransaction();
 
         // 1. Create Case Record
-        $caseID = CaseRecord::create($data['defendant_ID']);
+        $id = CaseRecord::create($data['defendant_ID']);
         
         // 2. Add All Charges
-        insert_case_charges($db, $caseID, $data['charges']);
+        insert_case_charges($db, $id, $data['charges']);
         
         // 3. Link Lawyer
-        CaseRecord::linkLawyer($caseID, $data['lawyer_ID']);
+        CaseRecord::linkLawyer($id, $data['lawyer_ID']);
         
         // 4. Add Court Events (optional)
-        insert_case_events($db, $caseID, $data['events']);
+        insert_case_events($db, $id, $data['events']);
 
         $db->commit();
         unset($_SESSION['case']);
@@ -299,18 +299,18 @@ function handle_confirm_step($app) {
     }
 }
 
-function insert_case_charges($db, $caseID, $charges) { 
+function insert_case_charges($db, $id, $charges) { 
     // inserts charges for case
     foreach ($charges as $charge) {
-        Charge::create($caseID, $charge);
+        Charge::create($id, $charge);
     }
 }
 
-function insert_case_events($db, $caseID, $events) {
+function insert_case_events($db, $id, $events) {
     // inserts events for case
     foreach ($events as $event) {
         if (!empty($event['description']) || !empty($event['date']) || !empty($event['location'])) {
-            CourtEvent::create($caseID, $event);
+            CourtEvent::create($id, $event);
         }
     }
 }
@@ -328,27 +328,27 @@ function show_manage_cases($app) {
     }
 }
 
-function delete_case($app, $caseID) {
+function delete_case($app, $id) {
     try {
         // delete operation handled by model
-        CaseRecord::deleteCaseByID($caseID);
+        CaseRecord::deleteCaseByID($id);
         show_manage_cases($app);
     } catch (Exception $e) {
         render_error($app, $e->getMessage());
     } 
 }
 
-function edit_case($app, $caseID) {
+function edit_case($app, $id) {
     try {
         // get charges and events for editing
-        $charges = Charge::getChargesByCaseID($caseID);
-        $events = CourtEvent::getEventsByCaseID($caseID);
+        $charges = Charge::getChargesByCaseID($id);
+        $events = CourtEvent::getEventsByCaseID($id);
     
-        ($app->render)('standard', 'forms/edit_case', [
-            'caseID'  => $caseID,
-            'charges' => $charges,
-            'events'  => $events
-        ]);
+($app->render)('standard', 'forms/edit_case', [
+    'id' => $id,
+    'charges' => $charges,
+    'events' => $events
+]);
     } catch (Exception $e) {
         render_error($app, $e->getMessage());
     } 

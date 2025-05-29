@@ -10,6 +10,7 @@ function h($val) {
 <div class="my-3"></div>
 
 <form method="POST" action="">
+  <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <?php include PARTIALS . '/_defendant_form.php'; ?>
     <br>
     <button id="submit" type="submit" class="btn btn-primary">

@@ -32,8 +32,8 @@ switch ($action) {
 // Add and edit functionality combined into single function
 function save_charge($app, $chargeID = null) {
     try {
-        $caseID = $_GET['caseID'] ?? null;
-        if (!$caseID) {
+        $id = $_GET['caseID'] ?? null;
+        if (!$id) {
             throw new Exception("Case ID required.");
         }
 
@@ -62,16 +62,16 @@ function save_charge($app, $chargeID = null) {
                 Charge::update($chargeID, $data);
                 $message = "Charge updated successfully.";
             } else {
-                Charge::create($caseID, $data);
+                Charge::create($id, $data);
                 $message = "Charge added successfully.";
             }
 
-            redirect_with_success("/case/edit/" . $caseID, $message);
+            redirect_with_success("/case/edit/" . $id, $message);
         }
 
         // GET request: render form
         ($app->render)('standard', 'forms/charge_form', [
-            'caseID' => $caseID,
+            'caseID' => $id,
             'charge' => $charge,
             'isEdit' => $isEdit,
         ]);
@@ -83,13 +83,13 @@ function save_charge($app, $chargeID = null) {
 
 function delete_charge($app, $chargeID) {
     try {
-        $caseID = $_GET['caseID'] ?? null;
-        if (!$caseID) {
+        $id = $_GET['caseID'] ?? null;
+        if (!$id) {
             throw new Exception("Case ID required.");
         }
 
         Charge::delete($chargeID);
-        redirect_with_success("/case/edit/" . $caseID, "Charge deleted successfully.");
+        redirect_with_success("/case/edit/" . $id, "Charge deleted successfully.");
 
     } catch (Exception $e) {
         render_error($app, $e->getMessage());

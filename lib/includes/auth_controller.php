@@ -1,8 +1,14 @@
 <?php
+
+
 ob_start();  // Prevent premature output
 require_once __DIR__ . '/../models/Auth.php';
-session_start();
-
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 function login_page($app) {
     ($app->render)("standard", "authentication/login");
 }
@@ -13,6 +19,9 @@ function login_user() {
         $username = trim($username);
         $password = filter_input(INPUT_POST, 'password', FILTER_UNSAFE_RAW);
 
+        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            throw new Exception("Invalid CSRF token");
+        }
         if (!$username || !preg_match('/^[a-zA-Z0-9_]{3,30}$/', $username)) {
             throw new Exception("Invalid username format.");
         }
@@ -61,6 +70,9 @@ function register_user() {
         $password = filter_input(INPUT_POST, 'password', FILTER_UNSAFE_RAW);
         $confirm = filter_input(INPUT_POST, 'confirm', FILTER_UNSAFE_RAW);
 
+        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            throw new Exception("Invalid CSRF token");
+        }
         if (!$username || !preg_match('/^[a-zA-Z0-9_]{3,30}$/', $username)) {
             throw new Exception("Invalid username format.");
         }
