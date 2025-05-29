@@ -147,7 +147,7 @@ class Lawyer
 
         $changeSummary = !empty($changes) ? implode("; ", $changes) : "No changes were made.";
 
-        $logMessage = "User {$username} (ID: {$userId}) updated lawyer (ID: {$lawyerID}). {$changeSummary}";
+        $logMessage = "User {$username} (ID: {$userId}) updated lawyer (ID: {$lawyerID}). \n {$changeSummary}";
 
         LogModel::log_action($userId, $logMessage);
     }

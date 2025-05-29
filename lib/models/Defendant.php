@@ -225,7 +225,7 @@ class Defendant
         }
 
         $logMessage = sprintf(
-            "User %s (ID: %s) deleted defendant: Name='%s', \n DOB='%s' \n , Ethnicity='%s', \n Phone='%s', \n Address='%s', \n Email='%s' (Defendant ID: %s)",
+            "User %s (ID: %s) deleted defendant: Name='%s', \n DOB='%s', \n Ethnicity='%s', \n Phone='%s', \n Address='%s', \n Email='%s' (Defendant ID: %s)",
             $username,
             $userId ?? 'N/A',
             $defendant['Name'] ?? 'N/A',
