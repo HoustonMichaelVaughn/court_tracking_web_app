@@ -91,3 +91,49 @@ function delete_user($id) {
     header("Location: " . BASE_URL . "/accounts/manage");
     exit;
 }
+
+function edit_user_page($app, $id) {
+    if (!Auth::isAuthenticated() || !Auth::isAdmin()) {
+        header("Location: " . BASE_URL . "/");
+        exit;
+    }
+
+    $db = Database::getInstance()->getConnection();
+    $stmt = $db->prepare("SELECT id, username, role, staff_type FROM users WHERE id = ?");
+    $stmt->execute([$id]);
+    $user = $stmt->fetch();
+
+    if (!$user) {
+        $_SESSION['error'] = "User not found.";
+        header("Location: " . BASE_URL . "/accounts/manage");
+        exit;
+    }
+
+    ($app->render)("standard", "authentication/edit_account", ['user' => $user]);
+}
+
+function update_user($id) {
+    if (!Auth::isAuthenticated() || !Auth::isAdmin()) {
+        header("Location: " . BASE_URL . "/");
+        exit;
+    }
+
+    $username = $_POST['username'];
+    $role = $_POST['role'];
+    $staffType = $_POST['staff_type'];
+
+    $allowedRoles = ['admin', 'user'];
+    if (!in_array($role, $allowedRoles)) {
+        $_SESSION['error'] = "Invalid role selected.";
+        header("Location: " . BASE_URL . "/accounts/manage");
+        exit;
+    }
+
+    $db = Database::getInstance()->getConnection();
+    $stmt = $db->prepare("UPDATE users SET username = ?, role = ?, staff_type = ? WHERE id = ?");
+    $stmt->execute([$username, $role, $staffType, $id]);
+
+    $_SESSION['message'] = "User updated successfully.";
+    header("Location: " . BASE_URL . "/accounts/manage");
+    exit;
+}

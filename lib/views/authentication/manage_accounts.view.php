@@ -23,7 +23,7 @@
           <td><?= htmlspecialchars($account['role']) ?></td>
           <td><?= htmlspecialchars($account['staff_type']) ?></td>
           <td>
-            <a href="#" class="btn btn-sm btn-warning disabled">Edit</a>
+            <a href="<?= BASE_URL ?>/accounts/edit/<?= $account['id'] ?>" class="btn btn-sm btn-warning">Edit</a>
             <a href="<?= BASE_URL ?>/accounts/delete/<?= $account['id'] ?>" 
             class="btn btn-sm btn-danger"
             onclick="return confirm('Are you sure you want to delete this account?');">

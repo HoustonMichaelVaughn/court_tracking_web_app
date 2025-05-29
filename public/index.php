@@ -108,4 +108,14 @@ path('/accounts/delete/{id}', function($app, $id) {
     delete_user($id);
 });
 
+path('/accounts/edit/{id}', function($app, $id) {
+    require_once __DIR__ . '/../lib/includes/auth_controller.php';
+    edit_user_page($app, $id);
+});
+
+path('/accounts/edit/{id}/submit', function($app, $id) {
+    require_once __DIR__ . '/../lib/includes/auth_controller.php';
+    update_user($id);
+});
+
 resolve();
