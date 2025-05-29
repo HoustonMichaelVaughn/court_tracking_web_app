@@ -6,29 +6,6 @@ The Court Tracking System is a centralized, web-based application designed for p
 
 The system provides secure, role-based access to manage cases, defendants, lawyers, and court schedules, and includes audit logging for accountability.
 
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [About the Project](#about-the-project)
-- [Project Team](#project-team)
-- [Business Requirements](#business-requirements)
-- [Project Approach](#project-approach)
-- [Strategy](#strategy)
-- [The Online Prototype](#the-online-prototype)
-- [Installation Instructions](#installation-instructions)
-- [Uninstalling](#uninstalling)
-- [File & Folder Structure](#file--folder-structure)
-- [Database & Application Testing](#database--application-testing)
-- [Working Code Description](#working-code-description)
-- [Technology Stack](#technology-stack)
-- [Mobile Readiness](#mobile-readiness)
-- [Security](#security)
-- [Licensing](#licensing)
-
----
-
 ## About the Project
 
 The aim is to streamline court tracking operations using a secure, browser-accessible web platform that:
@@ -37,8 +14,6 @@ The aim is to streamline court tracking operations using a secure, browser-acces
 - Supports upcoming court dates and verdicts tracking.
 - Provides real-time updates and audit logging.
 - Minimizes manual administrative work.
-
----
 
 ## Project Team
 
@@ -49,8 +24,6 @@ The aim is to streamline court tracking operations using a secure, browser-acces
 | Houston     | Search                   | Developed search interface and backend        |
 | Prasansha   | Logs/Dashboard           | Developed overview dashboard and logs         |
 | Ricky       | Announcements/Calendar   | Developed internal notice updates and calendar|
-
----
 
 ## Business Requirements
 
@@ -76,13 +49,9 @@ Police departments required a modern, legally compliant way to manage court-rela
 - Advanced analytics
 - Public-facing access
 
----
-
 ## Project Approach
 
 The system follows a three-tier MVC architecture using PHP. REST-style routing is custom-built using `mouse.php`, and each functionality is modularized to support team development and long-term maintainability.
-
----
 
 ## Strategy
 
@@ -91,8 +60,6 @@ The system follows a three-tier MVC architecture using PHP. REST-style routing i
 - **Views:** Render dynamic HTML with Bootstrap 5.
 
 RESTful routing is implemented with custom curly-brace syntax (`/defendant/{id}`), allowing clean, dynamic URLs.
-
----
 
 ## The Online Prototype
 
@@ -107,8 +74,6 @@ Test Admin Account:
 username: admin
 password: password
 ```
-
----
 
 ## Installation Instructions
 
@@ -139,8 +104,6 @@ Place the app folder inside your server's `/htdocs/`.
 3. Launch the app:
     - Start your server and access `http://localhost/court_tracking_web_app/public`
 
----
-
 ## Uninstalling
 
 1. Delete `/court_tracking_web_app/` from `htdocs/`.
@@ -149,19 +112,17 @@ Place the app folder inside your server's `/htdocs/`.
    DROP DATABASE court_tracking_system;
     ```
 
----
-
 ## File and Folder Structure
-```pgsql
-/public/       → Public entry point (controllers, .htaccess)
+```
+/public/        → Public entry point (controllers, .htaccess)
 /lib/
-  └ includes/  → Controllers
-  └ models/    → Data models (SQL logic)
-  └ views/     → HTML templates and reusable partials
+  └ includes/   → Controllers
+  └ models/     → Data models (SQL logic)
+  └ views/      → HTML templates and reusable partials
 /database/
   └ init_db.sql → Sets up schema
-/docs/         → Documentation, ERD
-README.md      → Project overview
+/docs/          → Documentation, ERD
+README.md       → Project overview
 ```
 
 ## Database & Application Testing
@@ -195,16 +156,14 @@ $router->get('/defendant/{id}', 'includes/defendant_controller.php');
 ### State Management
 
 Sessions are used:
-- session_start() in entry point
-- Flash messaging: set_session_message(), get_session_message()
+- `session_start()` in entry point
+- Flash messaging: `set_session_message()`, `get_session_message()`
 
 ### MVC Breakdown
 
-- Controllers: Handle logic (lib/includes/)
-- Models: Query database securely with PDO (lib/models/)
-- Views: Reusable HTML using Bootstrap 5 (lib/views/)
-
---- 
+- Controllers: Handle logic (`lib/includes/`)
+- Models: Query database securely with PDO (`lib/models/`)
+- Views: Reusable HTML using Bootstrap 5 (`lib/views/`)
 
 ## Technology Stack
 
@@ -214,13 +173,9 @@ Sessions are used:
 - HTML5, CSS
 - Apache/MAMP/XAMPP
 
---- 
-
-## Mobile Readiness
+## Mobile Readiness
 
 The application is responsive using Bootstrap 5. Fully tested on Chrome mobile simulator.
-
----
 
 ## Security
 
@@ -229,8 +184,6 @@ The application is responsive using Bootstrap 5. Fully tested on Chrome mobile s
 - Session Management: Secure login, logout, and flash messages
 - Sensitive Info: DB credentials in `lib/includes/Database.php` (not exposed publicly)
 - Password Protection: Passwords hashed using `password_hash()` and verified with `password_verify()`
-
----
 
 ## Licensing
 
