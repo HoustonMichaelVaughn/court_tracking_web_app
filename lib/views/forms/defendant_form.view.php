@@ -1,11 +1,20 @@
-<h2><?= $isEdit ? 'Edit Defendant' : 'Add Defendant' ?></h2>
+<?php
+function h($val) {
+    return htmlspecialchars($val ?? '', ENT_QUOTES, 'UTF-8');
+}
+?>
+
+<h2><?= h($isEdit ? 'Edit Defendant' : 'Add Defendant') ?></h2>
+
 <a href="<?= BASE_URL ?>/defendant/manage" class="btn btn-outline-danger">← Cancel</a>
 <div class="my-3"></div>
 
 <form method="POST" action="">
     <?php include PARTIALS . '/_defendant_form.php'; ?>
     <br>
-    <button id="submit" type="submit" class="btn btn-primary"><?= $isEdit ? 'Update Defendant' : 'Add Defendant' ?></button>
+    <button id="submit" type="submit" class="btn btn-primary">
+        <?= h($isEdit ? 'Update Defendant' : 'Add Defendant') ?>
+    </button>
 </form>
 
 <script>

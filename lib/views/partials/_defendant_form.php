@@ -5,7 +5,7 @@
             class="form-control" 
             name="name" 
             placeholder="Name"
-            value="<?= htmlspecialchars($defendant['Name'] ?? '') ?>"
+            value="<?= htmlspecialchars($defendant['Name'], ENT_QUOTES, 'UTF-8') ?>"
         >
     </div>
     <div class="col-md-6">
@@ -14,7 +14,7 @@
             class="form-control" 
             name="dob" 
             placeholder="Date of Birth"
-            value="<?= htmlspecialchars($defendant['Date_of_Birth'] ?? '') ?>"
+            value="<?= htmlspecialchars($defendant['Date_of_Birth'], ENT_QUOTES, 'UTF-8') ?>"
         >
     </div>
     <div class="col-md-12">
@@ -23,7 +23,7 @@
             class="form-control" 
             name="address" 
             placeholder="Address"
-            value="<?= htmlspecialchars($defendant['Address'] ?? '') ?>"
+            value="<?= htmlspecialchars($defendant['Address'], ENT_QUOTES, 'UTF-8') ?>"
         >
     </div>
     <div class="col-md-6">
@@ -32,7 +32,7 @@
             class="form-control" 
             name="ethnicity" 
             placeholder="Ethnicity"
-            value="<?= htmlspecialchars($defendant['Ethnicity'] ?? '') ?>"
+            value="<?= htmlspecialchars($defendant['Ethnicity'], ENT_QUOTES, 'UTF-8') ?>"
         >
     </div>
     <div class="col-md-6">
@@ -41,7 +41,7 @@
             class="form-control" 
             name="phone" 
             placeholder="Phone"
-            value="<?= htmlspecialchars($defendant['Phone_Number'] ?? '') ?>"
+            value="<?= htmlspecialchars($defendant['Phone_Number'], ENT_QUOTES, 'UTF-8') ?>"
         >
     </div>
     <div class="col-md-12">
@@ -50,7 +50,7 @@
             class="form-control" 
             name="email" 
             placeholder="Email"
-            value="<?= htmlspecialchars($defendant['Email'] ?? '') ?>"
+            value="<?= htmlspecialchars($defendant['Email'], ENT_QUOTES, 'UTF-8') ?>"
         >
     </div>
 </div>

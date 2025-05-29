@@ -11,7 +11,7 @@
         <option value="event" <?= ($query['field'] ?? '') === 'event' ? 'selected' : '' ?>>Event Description</option>
     </select>
 
-    <input type="text" name="q" value="<?= htmlspecialchars($query['q'] ?? '') ?>" placeholder="Search term..." />
+    <input type="text" name="q" value="<?= htmlspecialchars($query['q'], ENT_QUOTES, 'UTF-8') ?>" placeholder="Search term..." />
     <input type="submit" value="Search" />
 </form>
 
@@ -19,16 +19,16 @@
     <ul>
         <?php foreach ($results as $row): ?>
             <li>
-                <strong><?= htmlspecialchars($row['Defendant_Name'] ?? '') ?></strong>
-                (<?= htmlspecialchars($row['Defendant_Email'] ?? '') ?>)
+                <strong><?= htmlspecialchars($row['Defendant_Name'], ENT_QUOTES, 'UTF-8') ?></strong>
+                (<?= htmlspecialchars($row['Defendant_Email'], ENT_QUOTES, 'UTF-8') ?>)
                 <ul>
                     <li>Case ID: <?= htmlspecialchars(strval($row['case_ID'] ?? '')) ?></li>
-                    <li>Charge: <?= htmlspecialchars($row['Charge_Description'] ?? '') ?>
-                        (<?= htmlspecialchars($row['Charge_Status'] ?? '') ?>)</li>
-                    <li>Lawyer: <?= htmlspecialchars($row['Lawyer_Name'] ?? '') ?></li>
-                    <li>Event: <?= htmlspecialchars($row['Event_Description'] ?? '') ?> at
-                        <?= htmlspecialchars($row['Event_Location'] ?? '') ?> on
-                        <?= htmlspecialchars($row['Event_Date'] ?? '') ?></li>
+                    <li>Charge: <?= htmlspecialchars($row['Charge_Description'], ENT_QUOTES, 'UTF-8') ?>
+                        (<?= htmlspecialchars($row['Charge_Status'], ENT_QUOTES, 'UTF-8') ?>)</li>
+                    <li>Lawyer: <?= htmlspecialchars($row['Lawyer_Name'], ENT_QUOTES, 'UTF-8') ?></li>
+                    <li>Event: <?= htmlspecialchars($row['Event_Description'], ENT_QUOTES, 'UTF-8') ?> at
+                        <?= htmlspecialchars($row['Event_Location'], ENT_QUOTES, 'UTF-8') ?> on
+                        <?= htmlspecialchars($row['Event_Date'], ENT_QUOTES, 'UTF-8') ?></li>
                 </ul>
             </li>
         <?php endforeach; ?>
