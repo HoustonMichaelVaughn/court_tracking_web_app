@@ -4,6 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require_once __DIR__ . '/../models/Auth.php';
+require_once __DIR__ . '/../models/logs.php';
 
 if (!Auth::isAuthenticated()) {
     header("Location: " . BASE_URL . "/login");
@@ -63,16 +64,39 @@ function save_event($app, $eventID = null) {
             
             // database operations
             if ($isEdit) {
+                $oldData = $event;
+
                 CourtEvent::update($eventID, $data);
+
+                $changes = [];
+                foreach (['location', 'description', 'date'] as $field) {
+                    $oldValue = $oldData[ucfirst($field)] ?? '';
+                    $newValue = $data[$field] ?? '';
+                    if ($oldValue != $newValue) {
+                        $changes[] = ucfirst($field) . " changed from '$oldValue' to '$newValue'";
+                    }
+                }
+
+                $changeSummary = implode("; ", $changes);
+                if (empty($changeSummary)) {
+                    $changeSummary = "No changes were made.";
+                }
+
+                LogModel::log_action($_SESSION['user_id'], "Updated event ID $eventID for case ID $caseID. $changeSummary");
                 $successMessage = "Event updated successfully.";
             } else {
                 CourtEvent::create($id, $data);
+
+
+                $details = "Location: '{$data['location']}'; \n Description: '{$data['description']}'; \n Date: '{$data['date']}'";
+                LogModel::log_action($_SESSION['user_id'], "Created new event for case ID $id. $details");
+
                 $successMessage = "Event added successfully.";
             }
     
             redirect_with_success("/case/edit/" . $id, $successMessage);
         }
-        
+
         // for GET request, display standard form
         ($app->render)('standard', 'forms/event_form', [
             'caseID' => $id,
@@ -92,10 +116,28 @@ function delete_event($app, $eventID) {
             throw new Exception("CaseID required.");
         }
         
+        // Fetch event details before deleting
+        $event = CourtEvent::getEventByEventID($eventID);
+        if (!$event) {
+            throw new Exception("Event not found.");
+        }
+
+        // Safely access fields
+        $location = $event['location'] ?? '[unknown]';
+        $description = $event['description'] ?? '[unknown]';
+        $date = $event['date'] ?? '[unknown]';
+
         // database operation
         CourtEvent::delete($eventID);
 
+
+        $details = "Deleted event ID $eventID from case ID $id. \n ";
+        $details .= "Details - Location: '{$event['Location']}', \n Description: '{$event['Description']}', \n Date: '{$event['Date']}'.";
+
+        LogModel::log_action($_SESSION['user_id'], $details);
+
         redirect_with_success("/case/edit/" . $id, "Event deleted successfully.");
+
         
     } catch (Exception $e) {
         render_error($app, $e->getMessage());
