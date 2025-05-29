@@ -18,10 +18,6 @@
         </select>
       </div>
 
-      <div class="mb-3">
-        <label class="form-label">Staff Type</label>
-        <input type="text" name="staff_type" class="form-control" value="<?= htmlspecialchars($user['staff_type']) ?>" required>
-      </div>
 
       <button type="submit" class="btn btn-primary">Save Changes</button>
       <a href="<?= BASE_URL ?>/accounts/manage" class="btn btn-secondary ms-2">Cancel</a>

@@ -12,7 +12,6 @@
       <tr>
         <th>Username</th>
         <th>Role</th>
-        <th>Staff Type</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -21,7 +20,6 @@
         <tr>
           <td><?= htmlspecialchars($account['username']) ?></td>
           <td><?= htmlspecialchars($account['role']) ?></td>
-          <td><?= htmlspecialchars($account['staff_type']) ?></td>
           <td>
             <a href="<?= BASE_URL ?>/accounts/edit/<?= $account['id'] ?>" class="btn btn-sm btn-warning">Edit</a>
             <a href="<?= BASE_URL ?>/accounts/delete/<?= $account['id'] ?>" 

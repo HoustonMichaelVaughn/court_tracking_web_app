@@ -1,14 +1,16 @@
 <?php
 
 
-ob_start();  // Prevent premature output
+ob_start();
 require_once __DIR__ . '/../models/Auth.php';
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
+
 function login_page($app) {
     ($app->render)("standard", "authentication/login");
 }
@@ -22,6 +24,7 @@ function login_user() {
         if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
             throw new Exception("Invalid CSRF token");
         }
+
         if (!$username || !preg_match('/^[a-zA-Z0-9_]{3,30}$/', $username)) {
             throw new Exception("Invalid username format.");
         }
@@ -33,7 +36,7 @@ function login_user() {
         Auth::login($username, $password);
 
         if (session_status() === PHP_SESSION_ACTIVE) {
-            session_regenerate_id(true);  // prevent session fixation
+            session_regenerate_id(true);
         }
 
         header("Location: " . BASE_URL . "/");
@@ -73,6 +76,7 @@ function register_user() {
         if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
             throw new Exception("Invalid CSRF token");
         }
+
         if (!$username || !preg_match('/^[a-zA-Z0-9_]{3,30}$/', $username)) {
             throw new Exception("Invalid username format.");
         }
@@ -97,18 +101,13 @@ function register_user() {
     }
 }
 
-// managing accounts:
-
 function manage_accounts($app) {
     if (!Auth::isAuthenticated() || !Auth::isAdmin()) {
         header("Location: " . BASE_URL . "/");
         exit;
     }
 
-    $db = Database::getInstance()->getConnection();
-    $stmt = $db->query("SELECT id, username, role, staff_type FROM users");
-    $accounts = $stmt->fetchAll();
-
+    $accounts = Auth::getAllUsers();
     ($app->render)("standard", "authentication/manage_accounts", ['accounts' => $accounts]);
 }
 
@@ -118,17 +117,13 @@ function delete_user($id) {
         exit;
     }
 
-    // prevents deleting current admin account
     if ($_SESSION['user_id'] == $id) {
         $_SESSION['message'] = "You cannot delete your own account.";
         header("Location: " . BASE_URL . "/accounts/manage");
         exit;
     }
 
-    $db = Database::getInstance()->getConnection();
-    $stmt = $db->prepare("DELETE FROM users WHERE id = ?");
-    $stmt->execute([$id]);
-
+    Auth::deleteUser($id);
     $_SESSION['message'] = "Account deleted successfully.";
     header("Location: " . BASE_URL . "/accounts/manage");
     exit;
@@ -140,10 +135,7 @@ function edit_user_page($app, $id) {
         exit;
     }
 
-    $db = Database::getInstance()->getConnection();
-    $stmt = $db->prepare("SELECT id, username, role, staff_type FROM users WHERE id = ?");
-    $stmt->execute([$id]);
-    $user = $stmt->fetch();
+    $user = Auth::getUserById($id);
 
     if (!$user) {
         $_SESSION['error'] = "User not found.";
@@ -155,27 +147,32 @@ function edit_user_page($app, $id) {
 }
 
 function update_user($id) {
-    if (!Auth::isAuthenticated() || !Auth::isAdmin()) {
-        header("Location: " . BASE_URL . "/");
+    try {
+        if (!Auth::isAuthenticated() || !Auth::isAdmin()) {
+            header("Location: " . BASE_URL . "/");
+            exit;
+        }
+    
+        $username = $_POST['username'];
+        $role = $_POST['role'];
+    
+        $allowedRoles = ['admin', 'user'];
+        if (!in_array($role, $allowedRoles)) {
+            $_SESSION['error'] = "Invalid role selected.";
+            header("Location: " . BASE_URL . "/accounts/manage");
+            exit;
+        }
+    
+        Auth::updateUser($id, $username, $role);
+    
+        $_SESSION['message'] = "User updated successfully.";
+        header("Location: " . BASE_URL . "/accounts/manage");
         exit;
-    }
-
-    $username = $_POST['username'];
-    $role = $_POST['role'];
-    $staffType = $_POST['staff_type'];
-
-    $allowedRoles = ['admin', 'user'];
-    if (!in_array($role, $allowedRoles)) {
-        $_SESSION['error'] = "Invalid role selected.";
+        
+    } catch (Exception $e) {
+        $_SESSION['message'] = $e->getMessage();
         header("Location: " . BASE_URL . "/accounts/manage");
         exit;
     }
 
-    $db = Database::getInstance()->getConnection();
-    $stmt = $db->prepare("UPDATE users SET username = ?, role = ?, staff_type = ? WHERE id = ?");
-    $stmt->execute([$username, $role, $staffType, $id]);
-
-    $_SESSION['message'] = "User updated successfully.";
-    header("Location: " . BASE_URL . "/accounts/manage");
-    exit;
 }
