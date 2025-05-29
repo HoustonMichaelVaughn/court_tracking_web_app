@@ -27,7 +27,7 @@ class LogController
             exit;
         }
 
-        $logsPerPage = 10;
+        $logsPerPage = 5;
         $currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
         $offset = ($currentPage - 1) * $logsPerPage;
 

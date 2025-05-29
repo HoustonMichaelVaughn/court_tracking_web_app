@@ -28,21 +28,43 @@ class CaseRecord
         $stmt->execute([':caseID' => $caseID]);
     }
 
-    public static function getAllCasesWithDetails()
-    {
-        $db = Database::getInstance()->getConnection();
+    public static function getAllCasesWithDetails($caseID = null)
+{
+    $db = Database::getInstance()->getConnection();
 
-        $stmt = $db->query("
-            SELECT cr.case_ID, d.name AS defendant_name, l.name AS lawyer_name
+    if ($caseID === null) {
+        // Query all cases summary (no joins)
+        $stmt = $db->prepare("
+            SELECT cr.case_ID, d.name AS defendant_name
+            FROM caserecord cr
+            LEFT JOIN defendant d ON cr.defendant_ID = d.defendant_ID
+            ORDER BY cr.case_ID DESC
+        ");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } else {
+        // Query single case with full details (joins for charges, events, lawyers)
+        $stmt = $db->prepare("
+            SELECT 
+                cr.case_ID, 
+                d.name AS defendant_name, 
+                l.name AS lawyer_name,
+                ch.description AS charge_type,
+                ce.description AS event_description, 
+                ce.date AS event_date
             FROM caserecord cr
             LEFT JOIN defendant d ON cr.defendant_ID = d.defendant_ID
             LEFT JOIN case_lawyer cl ON cr.case_ID = cl.case_ID
             LEFT JOIN lawyer l ON cl.lawyer_ID = l.lawyer_ID
+            LEFT JOIN charge ch ON cr.case_ID = ch.case_ID
+            LEFT JOIN court_event ce ON cr.case_ID = ce.case_ID
+            WHERE cr.case_ID = :caseID
             ORDER BY cr.case_ID DESC
         ");
-
+        $stmt->execute([':caseID' => $caseID]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+}
 
     public static function linkLawyer($caseID, $lawyerID)
     {
@@ -60,26 +82,26 @@ class CaseRecord
     $stmt->execute();
     $total = $stmt->fetchColumn();
 
-    // Active (status = 'open' or 'active') from charge
-    $stmt = $pdo->prepare("SELECT COUNT(DISTINCT case_ID) FROM charge WHERE LOWER(status) IN ('open', 'active')");
-    $stmt->execute();
-    $active = $stmt->fetchColumn();
-
-    // Pending from charge
+    // Pending charges
     $stmt = $pdo->prepare("SELECT COUNT(DISTINCT case_ID) FROM charge WHERE LOWER(status) = 'pending'");
     $stmt->execute();
     $pending = $stmt->fetchColumn();
 
-    // Closed from charge
-    $stmt = $pdo->prepare("SELECT COUNT(DISTINCT case_ID) FROM charge WHERE LOWER(status) = 'closed'");
+    // Resolved charges
+    $stmt = $pdo->prepare("SELECT COUNT(DISTINCT case_ID) FROM charge WHERE LOWER(status) = 'resolved'");
     $stmt->execute();
-    $closed = $stmt->fetchColumn();
+    $resolved = $stmt->fetchColumn();
+
+    // Dismissed charges
+    $stmt = $pdo->prepare("SELECT COUNT(DISTINCT case_ID) FROM charge WHERE LOWER(status) = 'dismissed'");
+    $stmt->execute();
+    $dismissed = $stmt->fetchColumn();
 
     return [
         'total' => $total,
-        'active' => $active,
         'pending' => $pending,
-        'closed' => $closed
+        'resolved' => $resolved,
+        'dismissed' => $dismissed
     ];
     }
 

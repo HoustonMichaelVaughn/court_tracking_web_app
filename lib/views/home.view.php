@@ -33,24 +33,24 @@
         <div class="col-md-3">
       <div class="card text-white bg-success h-100">
         <div class="card-body text-center d-flex flex-column justify-content-center">
-          <h5 class="card-title">Active Cases</h5>
-          <p class="card-text fs-3"><?= htmlspecialchars($stats['active'] ?? 0) ?></p>
+          <h5 class="card-title">Pending Charges</h5>
+          <p class="card-text fs-3"><?= htmlspecialchars($stats['pending'] ?? 0) ?></p>
         </div>
       </div>
     </div>
     <div class="col-md-3">
       <div class="card text-white bg-warning h-100">
         <div class="card-body text-center d-flex flex-column justify-content-center">
-          <h5 class="card-title">Pending Cases</h5>
-          <p class="card-text fs-3"><?= htmlspecialchars($stats['pending'] ?? 0) ?></p>
+          <h5 class="card-title">Resolved Charges</h5>
+          <p class="card-text fs-3"><?= htmlspecialchars($stats['resolved'] ?? 0) ?></p>
         </div>
       </div>
     </div>
     <div class="col-md-3">
       <div class="card text-white bg-secondary h-100">
         <div class="card-body text-center d-flex flex-column justify-content-center">
-          <h5 class="card-title">Closed Cases</h5>
-          <p class="card-text fs-3"><?= htmlspecialchars($stats['closed'] ?? 0) ?></p>
+          <h5 class="card-title">Dismissed Charges</h5>
+          <p class="card-text fs-3"><?= htmlspecialchars($stats['dismissed'] ?? 0) ?></p>
         </div>
       </div>
     </div>

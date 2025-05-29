@@ -55,4 +55,15 @@ class Auth {
     public static function isAdmin() {
         return isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
     }
+
+    public static function getCurrentUser() {
+    if (!self::isAuthenticated()) {
+        return null;
+    }
+
+    $db = Database::getInstance()->getConnection();
+    $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+    return $stmt->fetch();  // returns user as associative array
+    }
 }
