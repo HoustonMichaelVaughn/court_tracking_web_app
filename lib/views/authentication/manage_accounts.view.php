@@ -23,9 +23,12 @@
           <td><?= htmlspecialchars($account['role']) ?></td>
           <td><?= htmlspecialchars($account['staff_type']) ?></td>
           <td>
-            <!-- In the next steps we'll add working links for edit and delete -->
             <a href="#" class="btn btn-sm btn-warning disabled">Edit</a>
-            <a href="#" class="btn btn-sm btn-danger disabled">Delete</a>
+            <a href="<?= BASE_URL ?>/accounts/delete/<?= $account['id'] ?>" 
+            class="btn btn-sm btn-danger"
+            onclick="return confirm('Are you sure you want to delete this account?');">
+            Delete
+            </a>
           </td>
         </tr>
       <?php endforeach; ?>

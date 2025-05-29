@@ -96,10 +96,16 @@ path('/register/submit', function($app) {
     register_user();
 });
 
-// manage accounts (admin only):
+// manage accounts:
+
 path('/accounts/manage', function($app) {
     require_once __DIR__ . '/../lib/includes/auth_controller.php';
     manage_accounts($app);
+});
+
+path('/accounts/delete/{id}', function($app, $id) {
+    require_once __DIR__ . '/../lib/includes/auth_controller.php';
+    delete_user($id);
 });
 
 resolve();

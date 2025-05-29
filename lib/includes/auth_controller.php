@@ -69,3 +69,25 @@ function manage_accounts($app) {
 
     ($app->render)("standard", "authentication/manage_accounts", ['accounts' => $accounts]);
 }
+
+function delete_user($id) {
+    if (!Auth::isAuthenticated() || !Auth::isAdmin()) {
+        header("Location: " . BASE_URL . "/");
+        exit;
+    }
+
+    // prevents deleting current admin account
+    if ($_SESSION['user_id'] == $id) {
+        $_SESSION['message'] = "You cannot delete your own account.";
+        header("Location: " . BASE_URL . "/accounts/manage");
+        exit;
+    }
+
+    $db = Database::getInstance()->getConnection();
+    $stmt = $db->prepare("DELETE FROM users WHERE id = ?");
+    $stmt->execute([$id]);
+
+    $_SESSION['message'] = "Account deleted successfully.";
+    header("Location: " . BASE_URL . "/accounts/manage");
+    exit;
+}
