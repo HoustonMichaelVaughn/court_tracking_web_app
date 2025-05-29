@@ -12,8 +12,11 @@ if (!Auth::isAuthenticated()) {
     header("Location: " . BASE_URL . "/login");
     exit;
 }
-
-// Example announcements (replace with model later)
+//Changes 
+$db = Database::getInstance()->getConnection();
+$stats = CaseRecord::getStatistics($db);
+$logs = getRecentLogs($db);
+$events = getUpcomingCourtEvents();
 $announcements = [
     "Welcome to the Court Tracking Dashboard!",
     "Don't forget to review your assigned cases."
