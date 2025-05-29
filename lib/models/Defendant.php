@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/Database.php';
+require_once __DIR__ . '/../models/Logs.php';
 
 class Defendant
 {
@@ -26,7 +27,37 @@ class Defendant
             ':phone'     => $data['phone'] ?? '',
             ':email'     => $data['email'] ?? ''
         ]);
+        $defendantID = $db->lastInsertId();
+
+        // Log the action
+        $userId = $_SESSION['user_id'] ?? null;
+        $username = 'Unknown User';
+        if ($userId !== null) {
+            $stmt = $db->prepare("SELECT username FROM users WHERE id = :id");
+            $stmt->execute([':id' => $userId]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($user && isset($user['username'])) {
+                $username = $user['username'];
+        }
+        $logMessage = sprintf(
+            "User %s (ID: %s) added new defendant: Name='%s',\n DOB='%s', \n Ethnicity='%s',\n Phone='%s', \n Address='%s', \n Email='%s' (Defendant ID: %s)",
+            $username,
+            $userId ?? 'N/A',
+            $data['name'],
+            $data['dob'],
+            $data['ethnicity'] ?? '',
+            $data['phone'] ?? '',
+            $data['address'] ?? '',
+            $data['email'] ?? '',
+            $defendantID
+        );
+
+        LogModel::log_action($userId, $logMessage);
+
+        return $defendantID;
     }
+}
+
 
     public function all(): array
     // returns all entries from database for dynamic drop down menus
@@ -102,6 +133,10 @@ class Defendant
     public static function update($defendantID, $data) {
         $db = Database::getInstance()->getConnection();
     
+        $stmt = $db->prepare("SELECT * FROM defendant WHERE defendant_ID = :defendant_ID");
+        $stmt->execute([':defendant_ID' => $defendantID]);
+        $oldData = $stmt->fetch(PDO::FETCH_ASSOC);
+
         $stmt = $db->prepare("
             UPDATE defendant
             SET
@@ -115,20 +150,94 @@ class Defendant
         ");
     
         $stmt->execute([
-            ':Name'                 => $data['name'],
-            ':Date_of_Birth'        => $data['dob'],
-            ':Address'              => $data['address'] ?? '',
-            ':Ethnicity'            => $data['ethnicity'] ?? '',
-            ':Phone_Number'         => $data['phone'] ?? '',
-            ':Email'                => $data['email'] ?? '',
-            ':defendant_ID'  => $defendantID,
+            ':Name' => $data['name'],
+            ':Date_of_Birth' => $data['dob'],
+            ':Address' => $data['address'] ?? '',
+            ':Ethnicity' => $data['ethnicity'] ?? '',
+            ':Phone_Number' => $data['phone'] ?? '',
+            ':Email' => $data['email'] ?? '',
+            ':defendant_ID' => $defendantID,
         ]);
+
+        $userId = $_SESSION['user_id'] ?? null;
+        $username = 'Unknown User';
+        if ($userId !== null) {
+            $stmt = $db->prepare("SELECT username FROM users WHERE id = :id");
+            $stmt->execute([':id' => $userId]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($user && isset($user['username'])) {
+                $username = $user['username'];
+            }
+        }
+
+        // Fields to compare: mapping database field keys to data keys and readable labels
+        $fields = [
+            'Name' => ['key' => 'name', 'label' => 'Name'],
+            'Date_of_Birth' => ['key' => 'dob', 'label' => 'Date of Birth'],
+            'Address' => ['key' => 'address', 'label' => 'Address'],
+            'Ethnicity' => ['key' => 'ethnicity', 'label' => 'Ethnicity'],
+            'Phone_Number' => ['key' => 'phone', 'label' => 'Phone Number'],
+            'Email' => ['key' => 'email', 'label' => 'Email'],
+        ];
+
+        $changes = [];
+
+        foreach ($fields as $dbField => $info) {
+            $oldValue = $oldData[$dbField] ?? '';
+            $newValue = $data[$info['key']] ?? '';
+
+            if ($oldValue != $newValue) {
+                $changes[] = "{$info['label']} changed from '{$oldValue}' to '{$newValue}'";
+            }
+        }
+
+        $changeSummary = !empty($changes) ? implode("; ", $changes) : "No changes were made.";
+
+        $logMessage = "User {$username} (ID: {$userId}) updated defendant (ID: {$defendantID}). \n {$changeSummary}";
+        LogModel::log_action($userId, $logMessage);
+
     }    
 
     public static function delete($defendantID) {
         $db = Database::getInstance()->getConnection();
-    
+
+        // Fetch defendant info before deletion (for logging)
+        $stmt = $db->prepare("SELECT Name, Date_of_Birth, Ethnicity, Phone_Number, Address, Email FROM defendant WHERE defendant_ID = :defendant_ID");
+        $stmt->execute([':defendant_ID' => $defendantID]);
+        $defendant = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Delete the defendant record
         $stmt = $db->prepare("DELETE FROM defendant WHERE defendant_ID = :defendant_ID");
         $stmt->execute([':defendant_ID' => $defendantID]);
+
+        // Log the deletion
+        $userId = $_SESSION['user_id'] ?? null;
+        $username = 'Unknown User';
+        
+        if ($userId !== null) {
+            $stmt = $db->prepare("SELECT username FROM users WHERE id = :id");
+            $stmt->execute([':id' => $userId]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($user && isset($user['username'])) {
+                $username = $user['username'];
+            }
+        }
+
+        $logMessage = sprintf(
+            "User %s (ID: %s) deleted defendant: Name='%s', \n DOB='%s', \n Ethnicity='%s', \n Phone='%s', \n Address='%s', \n Email='%s' (Defendant ID: %s)",
+            $username,
+            $userId ?? 'N/A',
+            $defendant['Name'] ?? 'N/A',
+            $defendant['Date_of_Birth'] ?? 'N/A',
+            $defendant['Ethnicity'] ?? 'N/A',
+            $defendant['Phone_Number'] ?? 'N/A',
+            $defendant['Address'] ?? 'N/A',
+            $defendant['Email'] ?? 'N/A',
+            $defendantID
+        );
+
+        LogModel::log_action($userId, $logMessage);
     }
+
 }

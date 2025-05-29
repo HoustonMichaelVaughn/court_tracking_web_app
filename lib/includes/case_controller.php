@@ -17,6 +17,7 @@ require_once __DIR__ . '/../models/CaseRecord.php';
 require_once __DIR__ . '/../models/Charge.php';
 require_once __DIR__ . '/../models/CourtEvent.php';
 require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/../models/Logs.php';
 
 switch ($action) {
     // internal routing within the controller
@@ -46,13 +47,13 @@ switch ($action) {
         show_manage_cases($app);
         break;
     case 'edit':
-        edit_case($app, $caseID);
+        edit_case($app, $id);
         break;
     case 'cancel':
         cancel_case_wizard();
         break;
     case 'delete':
-        delete_case($app, $caseID);
+        delete_case($app, $id);
         break;
     default:
         ($app->render)('standard', '404');
@@ -274,18 +275,57 @@ function handle_confirm_step($app) {
         $db->beginTransaction();
 
         // 1. Create Case Record
-        $caseID = CaseRecord::create($data['defendant_ID']);
+        $id = CaseRecord::create($data['defendant_ID']);
         
         // 2. Add All Charges
-        insert_case_charges($db, $caseID, $data['charges']);
+        insert_case_charges($db, $id, $data['charges']);
         
         // 3. Link Lawyer
-        CaseRecord::linkLawyer($caseID, $data['lawyer_ID']);
+        CaseRecord::linkLawyer($id, $data['lawyer_ID']);
         
         // 4. Add Court Events (optional)
-        insert_case_events($db, $caseID, $data['events']);
+        insert_case_events($db, $id, $data['events']);
 
         $db->commit();
+
+        $userId = $_SESSION['user_id'] ?? null;
+        $user = null;
+        $username = 'Unknown User';
+
+        if ($userId !== null) {
+            $user = Auth::getCurrentUser(); 
+            if ($user) {
+                $username = $user['username'];
+            }
+        }
+
+        $defendant = Defendant::getDefendantByDefendantID($data['defendant_ID']);
+        $lawyer = Lawyer::getLawyerByLawyerID($data['lawyer_ID']);
+
+        $charges = array_map(fn($charge) => $charge['description'], $data['charges']);
+        $chargeText = implode(', ', $charges);
+
+        // Get the first event (for date & location if available)
+        $firstEvent = $data['events'][0] ?? ['date' => 'N/A', 'location' => 'N/A'];
+        $eventDate = $firstEvent['date'] ?? 'N/A';
+        $eventLocation = $firstEvent['location'] ?? 'N/A';
+
+        $logMessage = sprintf(
+            "%s (UserID: %s) added a new case (CaseID: %s). \n Defendant: %s, \n Charges: %s, \n Courtroom: %s, \n Date: %s, \n Location: %s, \n Lawyer: %s",
+            $username,
+            $userId ?? 'Unknown',
+            $caseID,
+            $defendant['Name'] ?? 'Unknown',
+            $chargeText,
+            $firstEvent['description'] ?? 'N/A',
+            $eventDate,
+            $eventLocation,
+            $lawyer['Name'] ?? 'Unknown'
+        );
+
+        // Log the action
+        LogModel::log_action($_SESSION['user_id'] ?? null, $logMessage);
+
         unset($_SESSION['case']);
 
         header("Location: " . BASE_URL . "/case/success");
@@ -299,18 +339,18 @@ function handle_confirm_step($app) {
     }
 }
 
-function insert_case_charges($db, $caseID, $charges) { 
+function insert_case_charges($db, $id, $charges) { 
     // inserts charges for case
     foreach ($charges as $charge) {
-        Charge::create($caseID, $charge);
+        Charge::create($id, $charge);
     }
 }
 
-function insert_case_events($db, $caseID, $events) {
+function insert_case_events($db, $id, $events) {
     // inserts events for case
     foreach ($events as $event) {
         if (!empty($event['description']) || !empty($event['date']) || !empty($event['location'])) {
-            CourtEvent::create($caseID, $event);
+            CourtEvent::create($id, $event);
         }
     }
 }
@@ -328,27 +368,120 @@ function show_manage_cases($app) {
     }
 }
 
-function delete_case($app, $caseID) {
+function delete_case($app, $id) {
     try {
-        // delete operation handled by model
+        // Fetch full case details
+        $caseDetails = CaseRecord::getAllCasesWithDetails($caseID);
+        error_log("Case details fetched for deletion: " . print_r($caseDetails, true));
+
+        if (empty($caseDetails)) {
+            throw new Exception("Case with ID $caseID not found.");
+        }
+
+        $defendant = $caseDetails[0]['defendant_name'] ?? 'Unknown';
+
+        $charges = [];
+        $events = [];
+        $lawyers = [];
+
+        foreach ($caseDetails as $detail) {
+            // Log raw data
+            error_log("Detail row: " . print_r($detail, true));
+
+            // Collect charges
+            $chargeType = $detail['charge_type'] ?? null;
+            if (!empty($chargeType) && !in_array($chargeType, $charges, true)) {
+                $charges[] = $chargeType;
+            }
+
+            // Collect events (if both description and date are present)
+            $eventDesc = $detail['event_description'] ?? null;
+            $eventDate = $detail['event_date'] ?? null;
+            if (!empty($eventDesc) && !empty($eventDate)) {
+                $eventEntry = [
+                    'description' => $eventDesc,
+                    'date' => $eventDate,
+                ];
+
+                // Avoid duplicates
+                $exists = false;
+                foreach ($events as $e) {
+                    if ($e['description'] === $eventEntry['description'] && $e['date'] === $eventEntry['date']) {
+                        $exists = true;
+                        break;
+                    }
+                }
+                if (!$exists) {
+                    $events[] = $eventEntry;
+                }
+            }
+
+            // Collect lawyers
+            $lawyerName = $detail['lawyer_name'] ?? null;
+            if (!empty($lawyerName) && !in_array($lawyerName, $lawyers, true)) {
+                $lawyers[] = $lawyerName;
+            }
+        }
+
+        error_log("Charges collected: " . implode(', ', $charges));
+        error_log("Events collected: " . print_r($events, true));
+        error_log("Lawyers collected: " . implode(', ', $lawyers));
+
+        // Delete the case from DB
         CaseRecord::deleteCaseByID($caseID);
-        show_manage_cases($app);
+
+        // Log user info
+        $userID = $_SESSION['user_id'] ?? null;
+        $username = 'Unknown User';
+
+        if ($userID !== null) {
+            $user = Auth::getCurrentUser();
+            if (!empty($user['username'])) {
+                $username = $user['username'];
+            }
+        }
+
+        // Build readable event summary
+        $eventSummaries = array_map(function($e) {
+            return "{$e['description']} (on {$e['date']})";
+        }, $events);
+
+        // Final log summary
+        $summary = sprintf(
+            "%s (UserID: %s) deleted case ID %s for defendant '%s'. \n Charges: %s. \n Events: %s. \n Lawyers: %s.",
+            $username,
+            $userID ?? 'N/A',
+            $caseID,
+            $defendant,
+            !empty($charges) ? implode(', ', $charges) : 'None',
+            !empty($eventSummaries) ? implode('; ', $eventSummaries) : 'None',
+            !empty($lawyers) ? implode(', ', $lawyers) : 'None'
+        );
+
+        error_log("Summary for logging: $summary");
+
+        // Save to log
+        if ($userID) {
+            LogModel::log_action($userID, $summary);
+        }
+
+        redirect_with_success("/case/manage", "Case deleted successfully.");
     } catch (Exception $e) {
         render_error($app, $e->getMessage());
-    } 
+    }
 }
 
-function edit_case($app, $caseID) {
+function edit_case($app, $id) {
     try {
         // get charges and events for editing
-        $charges = Charge::getChargesByCaseID($caseID);
-        $events = CourtEvent::getEventsByCaseID($caseID);
+        $charges = Charge::getChargesByCaseID($id);
+        $events = CourtEvent::getEventsByCaseID($id);
     
-        ($app->render)('standard', 'forms/edit_case', [
-            'caseID'  => $caseID,
-            'charges' => $charges,
-            'events'  => $events
-        ]);
+($app->render)('standard', 'forms/edit_case', [
+    'id' => $id,
+    'charges' => $charges,
+    'events' => $events
+]);
     } catch (Exception $e) {
         render_error($app, $e->getMessage());
     } 

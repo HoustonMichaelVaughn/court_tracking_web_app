@@ -7,6 +7,7 @@
 
 
 <form id="defendant-form" method="POST" action="<?= BASE_URL ?>/case/defendant">
+  <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
   <div class="mb-3">
     <label class="form-label">Select Existing Defendant</label>
     <select class="form-select" name="defendant_ID" id="defendant_ID">

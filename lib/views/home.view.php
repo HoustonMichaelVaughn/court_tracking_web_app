@@ -9,7 +9,7 @@
 <div class="p-5 mb-4 bg-light rounded-3">
   <div class="container-fluid py-5">
     <h1 class="display-5 fw-bold">Welcome to the Court Outcome Tracking System</h1>
-    <p class="col-md-8 fs-4">Log in or select a module from the menu to get started.</p>
+    <p class="col-md-8 fs-4">Select a module from the menu to get started.</p>
     <p class="fs-6 text-muted">
       Track and manage court cases efficiently with real-time updates, automated conviction assessments, and secure role-based access. 
       This system streamlines legal processes by centralising court data, reducing errors, and enhancing decision-making for law enforcement agencies.
@@ -33,24 +33,24 @@
         <div class="col-md-3">
       <div class="card text-white bg-success h-100">
         <div class="card-body text-center d-flex flex-column justify-content-center">
-          <h5 class="card-title">Active Cases</h5>
-          <p class="card-text fs-3"><?= htmlspecialchars($stats['active'] ?? 0) ?></p>
+          <h5 class="card-title">Pending Charges</h5>
+          <p class="card-text fs-3"><?= htmlspecialchars($stats['pending'] ?? 0) ?></p>
         </div>
       </div>
     </div>
     <div class="col-md-3">
       <div class="card text-white bg-warning h-100">
         <div class="card-body text-center d-flex flex-column justify-content-center">
-          <h5 class="card-title">Pending Cases</h5>
-          <p class="card-text fs-3"><?= htmlspecialchars($stats['pending'] ?? 0) ?></p>
+          <h5 class="card-title">Resolved Charges</h5>
+          <p class="card-text fs-3"><?= htmlspecialchars($stats['resolved'] ?? 0) ?></p>
         </div>
       </div>
     </div>
     <div class="col-md-3">
       <div class="card text-white bg-secondary h-100">
         <div class="card-body text-center d-flex flex-column justify-content-center">
-          <h5 class="card-title">Closed Cases</h5>
-          <p class="card-text fs-3"><?= htmlspecialchars($stats['closed'] ?? 0) ?></p>
+          <h5 class="card-title">Dismissed Charges</h5>
+          <p class="card-text fs-3"><?= htmlspecialchars($stats['dismissed'] ?? 0) ?></p>
         </div>
       </div>
     </div>

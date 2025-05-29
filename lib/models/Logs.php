@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../includes/Database.php';
-require_once __DIR__ . '/User.php'; 
+require_once __DIR__ . '/Auth.php';
 
 class LogModel
 {
@@ -11,7 +11,7 @@ class LogModel
             $db = Database::getInstance()->getConnection();
 
             // Get username
-            $user = User::findById($db, $userID);
+            $user = Auth::getCurrentUser();
             $username = $user ? $user['username'] : "User unknown (ID: $userID)";
 
             // Final message

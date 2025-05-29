@@ -28,5 +28,6 @@
 <?php endif; ?>
 
 <form method="POST" action="<?= BASE_URL ?>/case/confirm">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <button type="submit" class="btn btn-success">Submit Case</button>
 </form>

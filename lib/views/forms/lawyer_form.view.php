@@ -3,6 +3,7 @@
 <div class="my-3"></div>
 
 <form method="POST" action="">
+  <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <?php include PARTIALS . '/_lawyer_form.php'; ?>
     <br>
     <button id="submit" type="submit" class="btn btn-primary"><?= $isEdit ? 'Update Lawyer' : 'Add Lawyer' ?></button>

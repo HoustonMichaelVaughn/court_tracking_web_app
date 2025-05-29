@@ -2,6 +2,7 @@
 <a href="<?= BASE_URL ?>/case/edit/<?= $caseID ?>" class="btn btn-outline-danger">← Cancel</a>
 
 <form method="POST" action="">
+  <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <?php include PARTIALS . '/_event_form.php'; ?>
     <button id='submit' type="submit" class="btn btn-primary"><?= $isEdit ? 'Update Event' : 'Add Event' ?></button>
 </form>

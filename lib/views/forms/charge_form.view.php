@@ -5,6 +5,7 @@
 </div>
 
 <form method="POST" action="" class="mt-4">
+  <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <?php include PARTIALS . '/_charge_form.php'; ?>
     <button id="submit" type="submit" class="btn btn-primary"><?= $isEdit ? 'Update Charge' : 'Add Charge' ?></button>
 </form>
