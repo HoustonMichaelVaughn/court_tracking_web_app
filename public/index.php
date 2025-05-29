@@ -96,4 +96,10 @@ path('/register/submit', function($app) {
     register_user();
 });
 
+// manage accounts (admin only):
+path('/accounts/manage', function($app) {
+    require_once __DIR__ . '/../lib/includes/auth_controller.php';
+    manage_accounts($app);
+});
+
 resolve();

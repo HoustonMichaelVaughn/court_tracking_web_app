@@ -2,6 +2,8 @@
 require_once __DIR__ . '/../models/Auth.php';  // loads the Auth class
 session_start();
 
+// login system: 
+
 function login_page($app) {
     ($app->render)("standard", "authentication/login");
 }
@@ -51,4 +53,19 @@ function register_user() {
         header("Location: " . BASE_URL . "/register");
         exit;
     }
+}
+
+// managing accounts:
+
+function manage_accounts($app) {
+    if (!Auth::isAuthenticated() || !Auth::isAdmin()) {
+        header("Location: " . BASE_URL . "/");
+        exit;
+    }
+
+    $db = Database::getInstance()->getConnection();
+    $stmt = $db->query("SELECT id, username, role, staff_type FROM users");
+    $accounts = $stmt->fetchAll();
+
+    ($app->render)("standard", "authentication/manage_accounts", ['accounts' => $accounts]);
 }
