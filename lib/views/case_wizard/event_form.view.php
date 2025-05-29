@@ -2,6 +2,7 @@
 <a href="<?= BASE_URL ?>/case/cancel" class="btn btn-outline-danger">Cancel Wizard</a>
 
 <form method="POST" action="<?= BASE_URL ?>/case/events" id="event-form">
+  <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
   <?php require PARTIALS . '/_event_form.php'; ?>
   <button type="submit" name="add_more" class="btn btn-secondary mt-3" id="add-more-btn">Add Event</button>
   <button type="submit" class="btn btn-secondary mt-3">Confirm and Submit Case</button>

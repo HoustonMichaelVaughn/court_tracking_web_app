@@ -33,8 +33,8 @@ switch ($action) {
 // combined function for adding and editing for DRY
 function save_event($app, $eventID = null) {
     try {
-        $caseID = $_GET['caseID'] ?? null;
-        if (!$caseID) {
+        $id = $_GET['caseID'] ?? null;
+        if (!$id) {
             throw new Exception("CaseID required.");
         }
     
@@ -85,20 +85,21 @@ function save_event($app, $eventID = null) {
                 LogModel::log_action($_SESSION['user_id'], "Updated event ID $eventID for case ID $caseID. $changeSummary");
                 $successMessage = "Event updated successfully.";
             } else {
-                CourtEvent::create($caseID, $data);
+                CourtEvent::create($id, $data);
+
 
                 $details = "Location: '{$data['location']}'; \n Description: '{$data['description']}'; \n Date: '{$data['date']}'";
-                LogModel::log_action($_SESSION['user_id'], "Created new event for case ID $caseID. $details");
+                LogModel::log_action($_SESSION['user_id'], "Created new event for case ID $id. $details");
 
                 $successMessage = "Event added successfully.";
             }
     
-            redirect_with_success("/case/edit/" . $caseID, $successMessage);
+            redirect_with_success("/case/edit/" . $id, $successMessage);
         }
 
         // for GET request, display standard form
         ($app->render)('standard', 'forms/event_form', [
-            'caseID' => $caseID,
+            'caseID' => $id,
             'event' => $event,
             'isEdit' => $isEdit,
         ]);      
@@ -110,8 +111,8 @@ function save_event($app, $eventID = null) {
 
 function delete_event($app, $eventID) {
     try {
-        $caseID = $_GET['caseID'] ?? null;
-        if (!$caseID) {
+        $id = $_GET['caseID'] ?? null;
+        if (!$id) {
             throw new Exception("CaseID required.");
         }
         
@@ -129,12 +130,13 @@ function delete_event($app, $eventID) {
         // database operation
         CourtEvent::delete($eventID);
 
-        $details = "Deleted event ID $eventID from case ID $caseID. \n ";
+
+        $details = "Deleted event ID $eventID from case ID $id. \n ";
         $details .= "Details - Location: '{$event['Location']}', \n Description: '{$event['Description']}', \n Date: '{$event['Date']}'.";
 
         LogModel::log_action($_SESSION['user_id'], $details);
 
-        redirect_with_success("/case/edit/" . $caseID, "Event deleted successfully.");
+        redirect_with_success("/case/edit/" . $id, "Event deleted successfully.");
 
         
     } catch (Exception $e) {

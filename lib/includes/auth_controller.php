@@ -1,14 +1,41 @@
 <?php
-require_once __DIR__ . '/../models/Auth.php';  // loads the Auth class
-session_start();
 
+
+ob_start();  // Prevent premature output
+require_once __DIR__ . '/../models/Auth.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 function login_page($app) {
     ($app->render)("standard", "authentication/login");
 }
 
 function login_user() {
     try {
-        Auth::login($_POST['username'], $_POST['password']);
+        $username = filter_input(INPUT_POST, 'username', FILTER_DEFAULT);
+        $username = trim($username);
+        $password = filter_input(INPUT_POST, 'password', FILTER_UNSAFE_RAW);
+
+        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            throw new Exception("Invalid CSRF token");
+        }
+        if (!$username || !preg_match('/^[a-zA-Z0-9_]{3,30}$/', $username)) {
+            throw new Exception("Invalid username format.");
+        }
+
+        if (!$password || strlen($password) < 8) {
+            throw new Exception("Password must be at least 8 characters.");
+        }
+
+        Auth::login($username, $password);
+
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_regenerate_id(true);  // prevent session fixation
+        }
+
         header("Location: " . BASE_URL . "/");
         exit;
     } catch (Exception $e) {
@@ -24,8 +51,6 @@ function logout_user() {
     exit;
 }
 
-// registration system:
-
 function register_page($app) {
     if (!Auth::isAuthenticated() || !Auth::isAdmin()) {
         header("Location: " . BASE_URL . "/");
@@ -37,12 +62,31 @@ function register_page($app) {
 
 function register_user() {
     try {
-        $staffType = $_POST['staff_type'];
+        $staffType = $_POST['staff_type'] ?? null;
         $role = ($staffType === 'admin') ? 'admin' : 'user';
 
-        Auth::register($_POST['username'], $_POST['password'], $_POST['confirm'], $role);
+        $username = filter_input(INPUT_POST, 'username', FILTER_DEFAULT);
+        $username = trim($username);
+        $password = filter_input(INPUT_POST, 'password', FILTER_UNSAFE_RAW);
+        $confirm = filter_input(INPUT_POST, 'confirm', FILTER_UNSAFE_RAW);
 
-        // Don't log out the current user — stay logged in and redirect to staff management
+        if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+            throw new Exception("Invalid CSRF token");
+        }
+        if (!$username || !preg_match('/^[a-zA-Z0-9_]{3,30}$/', $username)) {
+            throw new Exception("Invalid username format.");
+        }
+
+        if (!$password || strlen($password) < 8) {
+            throw new Exception("Password must be at least 8 characters.");
+        }
+
+        if ($password !== $confirm) {
+            throw new Exception("Passwords do not match.");
+        }
+
+        Auth::register($username, $password, $confirm, $role);
+
         $_SESSION['success'] = "Staff registered successfully.";
         header("Location: " . BASE_URL . "/");
         exit;

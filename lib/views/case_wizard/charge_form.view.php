@@ -2,6 +2,7 @@
 <a href="<?= BASE_URL ?>/case/cancel" class="btn btn-outline-danger">Cancel Wizard</a>
 
 <form method="POST" action="<?= BASE_URL ?>/case/charges">
+  <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
   <?php require PARTIALS . '/_charge_form.php'; ?>
 
   <!-- Display the charges already added -->

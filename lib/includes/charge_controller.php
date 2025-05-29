@@ -14,7 +14,7 @@ require_once __DIR__ . '/../models/Charge.php';
 require_once __DIR__ . '/../includes/helpers.php';
 require_once __DIR__ . '/../models/Logs.php';
 
-// route internally within charge_controller
+// Route internally within charge_controller
 switch ($action) {
     case 'edit':
         save_charge($app, $chargeID);
@@ -30,12 +30,11 @@ switch ($action) {
         exit;
 }
 
-// add and edit functionality combined into single function for DRY
+// Add and edit functionality combined into single function
 function save_charge($app, $chargeID = null) {
     try {
-        // caseID required for both adding and editing
-        $caseID = $_GET['caseID'] ?? null;
-        if (!$caseID) {
+        $id = $_GET['caseID'] ?? null;
+        if (!$id) {
             throw new Exception("Case ID required.");
         }
 
@@ -46,7 +45,7 @@ function save_charge($app, $chargeID = null) {
             throw new Exception("Charge not found.");
         }
 
-        // get user data for POST request
+        // POST request: save new or updated charge
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $description = $_POST['description'] ?? '';
             $status = $_POST['status'] ?? '';
@@ -59,7 +58,7 @@ function save_charge($app, $chargeID = null) {
                 'description' => $description,
                 'status' => $status
             ];
-            // database operations
+
             if ($isEdit) {
                 $oldData = Charge::getChargeByChargeID($chargeID);
 
@@ -104,9 +103,9 @@ function save_charge($app, $chargeID = null) {
             redirect_with_success("/case/edit/" . $caseID, $successMessage);
         }
 
-        // Render form on GET request
+        // GET request: render form
         ($app->render)('standard', 'forms/charge_form', [
-            'caseID' => $caseID,
+            'caseID' => $id,
             'charge' => $charge,
             'isEdit' => $isEdit,
         ]);
@@ -119,10 +118,11 @@ function save_charge($app, $chargeID = null) {
 
 function delete_charge($app, $chargeID) {
     try {
-        $caseID = $_GET['caseID'] ?? null;
-        if (!$caseID) {
+        $id = $_GET['caseID'] ?? null;
+        if (!$id) {
             throw new Exception("Case ID required.");
         }
+
     
         // Fetch charge details before deleting
         $charge = Charge::getChargeByChargeID($chargeID);
@@ -135,7 +135,9 @@ function delete_charge($app, $chargeID) {
         $status = $charge['status'] ?? '[unknown]';
         
         // perform database operation
+
         Charge::delete($chargeID);
+        redirect_with_success("/case/edit/" . $id, "Charge deleted successfully.");
 
         $details = "Deleted charge ID $chargeID from case ID $caseID. \n ";
         $details .= "Details - Description: '{$charge['Description']}',\n Status: '{$charge['Status']}'.";

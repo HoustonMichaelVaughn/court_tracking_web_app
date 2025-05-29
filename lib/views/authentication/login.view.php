@@ -10,6 +10,7 @@
     <?php endif; ?>
 
     <form action="<?= BASE_URL ?>/login/submit" method="post">
+      <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
       <div class="mb-3">
         <label for="username" class="form-label">Username</label>
         <input type="text" name="username" class="form-control" id="username" required autofocus>

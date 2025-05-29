@@ -4,8 +4,8 @@
     type="text" 
     class="form-control" 
     name="description" 
-    value="<?= htmlspecialchars($charge["Description"]?? '') ?>"
-    >
+    value="<?= htmlspecialchars($charge["Description"] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+  >
 </div>
 
 <div class="mb-3">

@@ -9,7 +9,7 @@
 <div class="p-5 mb-4 bg-light rounded-3">
   <div class="container-fluid py-5">
     <h1 class="display-5 fw-bold">Welcome to the Court Outcome Tracking System</h1>
-    <p class="col-md-8 fs-4">Log in or select a module from the menu to get started.</p>
+    <p class="col-md-8 fs-4">Select a module from the menu to get started.</p>
     <p class="fs-6 text-muted">
       Track and manage court cases efficiently with real-time updates, automated conviction assessments, and secure role-based access. 
       This system streamlines legal processes by centralising court data, reducing errors, and enhancing decision-making for law enforcement agencies.
