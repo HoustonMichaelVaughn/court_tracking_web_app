@@ -14,7 +14,7 @@ function h($val) {
     <?php unset($_SESSION['success']); ?>
 <?php endif; ?>
 
-<form method="POST" action="/register">
+<form method="POST" action="<?= BASE_URL ?>/register/submit">
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
     <label for="username">Username:</label>
     <input type="text" name="username" id="username" required

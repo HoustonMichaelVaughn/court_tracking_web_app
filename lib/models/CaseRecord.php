@@ -35,9 +35,14 @@ class CaseRecord
     if ($caseID === null) {
         // Query all cases summary (no joins)
         $stmt = $db->prepare("
-            SELECT cr.case_ID, d.name AS defendant_name
+            SELECT 
+                cr.case_ID, 
+                d.name AS defendant_name,
+                l.name AS lawyer_name
             FROM caserecord cr
             LEFT JOIN defendant d ON cr.defendant_ID = d.defendant_ID
+            LEFT JOIN case_lawyer cl ON cr.case_ID = cl.case_ID
+            LEFT JOIN lawyer l ON cl.lawyer_ID = l.lawyer_ID
             ORDER BY cr.case_ID DESC
         ");
         $stmt->execute();
