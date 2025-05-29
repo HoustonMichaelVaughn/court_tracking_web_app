@@ -20,11 +20,6 @@ $announcements = [
 
 $events = getUpcomingCourtEvents();
 
-// ($app->render)('standard', 'dashboard/dashboard_view', [
-//     'events' => $events,
-//     'announcements' => $announcements
-// ]);
-
 $db = Database::getInstance()->getConnection();
 $stats = CaseRecord::getStatistics($db);
 
