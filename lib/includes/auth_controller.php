@@ -96,3 +96,78 @@ function register_user() {
         exit;
     }
 }
+
+function manage_accounts($app) {
+    if (!Auth::isAuthenticated() || !Auth::isAdmin()) {
+        header("Location: " . BASE_URL . "/");
+        exit;
+    }
+
+    $accounts = Auth::getAllUsers();
+    ($app->render)("standard", "authentication/manage_accounts", ['accounts' => $accounts]);
+}
+
+function delete_user($id) {
+    if (!Auth::isAuthenticated() || !Auth::isAdmin()) {
+        header("Location: " . BASE_URL . "/");
+        exit;
+    }
+
+    if ($_SESSION['user_id'] == $id) {
+        $_SESSION['message'] = "You cannot delete your own account.";
+        header("Location: " . BASE_URL . "/accounts/manage");
+        exit;
+    }
+
+    Auth::deleteUser($id);
+    $_SESSION['message'] = "Account deleted successfully.";
+    header("Location: " . BASE_URL . "/accounts/manage");
+    exit;
+}
+
+function edit_user_page($app, $id) {
+    if (!Auth::isAuthenticated() || !Auth::isAdmin()) {
+        header("Location: " . BASE_URL . "/");
+        exit;
+    }
+
+    $user = Auth::getUserById($id);
+
+    if (!$user) {
+        $_SESSION['error'] = "User not found.";
+        header("Location: " . BASE_URL . "/accounts/manage");
+        exit;
+    }
+
+    ($app->render)("standard", "authentication/edit_account", ['user' => $user]);
+}
+
+function update_user($id) {
+    try {
+        if (!Auth::isAuthenticated() || !Auth::isAdmin()) {
+            header("Location: " . BASE_URL . "/");
+            exit;
+        }
+
+        $username = $_POST['username'];
+        $role = $_POST['role'];
+
+        $allowedRoles = ['admin', 'user'];
+        if (!in_array($role, $allowedRoles)) {
+            $_SESSION['error'] = "Invalid role selected.";
+            header("Location: " . BASE_URL . "/accounts/manage");
+            exit;
+        }
+
+        Auth::updateUser($id, $username, $role);
+
+        $_SESSION['message'] = "User updated successfully.";
+        header("Location: " . BASE_URL . "/accounts/manage");
+        exit;
+
+    } catch (Exception $e) {
+        $_SESSION['message'] = $e->getMessage();
+        header("Location: " . BASE_URL . "/accounts/manage");
+        exit;
+    }
+}
