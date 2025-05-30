@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/Database.php';
 require_once __DIR__ . '/../models/Logs.php';
+require_once __DIR__ . '/../models/Auth.php';
 
 class Defendant
 {
@@ -27,20 +28,20 @@ class Defendant
             ':phone'     => $data['phone'] ?? '',
             ':email'     => $data['email'] ?? ''
         ]);
+
         $defendantID = $db->lastInsertId();
 
-        // Log the action
         $userId = $_SESSION['user_id'] ?? null;
         $username = 'Unknown User';
         if ($userId !== null) {
-            $stmt = $db->prepare("SELECT username FROM users WHERE id = :id");
-            $stmt->execute([':id' => $userId]);
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            $user = Auth::getCurrentUser();
             if ($user && isset($user['username'])) {
                 $username = $user['username'];
+            }
         }
+
         $logMessage = sprintf(
-            "User %s (ID: %s) added new defendant: Name='%s',\n DOB='%s', \n Ethnicity='%s',\n Phone='%s', \n Address='%s', \n Email='%s' (Defendant ID: %s)",
+            "User %s (ID: %s) added new defendant: Name='%s', DOB='%s', Ethnicity='%s', Phone='%s', Address='%s', Email='%s' (Defendant ID: %s)",
             $username,
             $userId ?? 'N/A',
             $data['name'],
@@ -56,18 +57,13 @@ class Defendant
 
         return $defendantID;
     }
-}
 
-
-    public function all(): array
-    // returns all entries from database for dynamic drop down menus
-    {
+    public function all(): array {
         $stmt = $this->db->query("SELECT defendant_ID, Name FROM defendant ORDER BY Name ASC");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function search_fielded(string $field, string $term): array
-    {
+    public function search_fielded(string $field, string $term): array {
         $base_sql = "
             SELECT DISTINCT
                 d.defendant_ID,
@@ -96,50 +92,35 @@ class Defendant
             'lawyer' => 'l.Name',
             'event' => 'ce.Description',
         ];
-
-        if (!isset($field_map[$field])) {
-            return [];
-        }
-
+        if (!isset($field_map[$field])) return [];
         $sql = $base_sql . " WHERE " . $field_map[$field] . " LIKE :term";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':term' => '%' . $term . '%']);
-
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public static function getAllDefendantsWithDetails()
-    {
+    public static function getAllDefendantsWithDetails() {
         $db = Database::getInstance()->getConnection();
-
-        $stmt = $db->query("
-            SELECT defendant_ID, Name AS defendant_name, Date_Of_Birth AS defendant_DOB
-            FROM Defendant
-        ");
-
+        $stmt = $db->query("SELECT defendant_ID, Name AS defendant_name, Date_Of_Birth AS defendant_DOB FROM Defendant");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public static function getDefendantByDefendantID($defendantID)
-    {
+    public static function getDefendantByDefendantID($defendantID) {
         $db = Database::getInstance()->getConnection();
-
         $stmt = $db->prepare("SELECT * FROM Defendant WHERE defendant_ID = :defendantID");
         $stmt->execute([':defendantID' => $defendantID]);
-
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public static function update($defendantID, $data) {
         $db = Database::getInstance()->getConnection();
-    
+
         $stmt = $db->prepare("SELECT * FROM defendant WHERE defendant_ID = :defendant_ID");
         $stmt->execute([':defendant_ID' => $defendantID]);
         $oldData = $stmt->fetch(PDO::FETCH_ASSOC);
 
         $stmt = $db->prepare("
-            UPDATE defendant
-            SET
+            UPDATE defendant SET
                 Name = :Name,
                 Date_of_Birth = :Date_of_Birth,
                 Address = :Address,
@@ -148,7 +129,7 @@ class Defendant
                 Email = :Email
             WHERE defendant_ID = :defendant_ID
         ");
-    
+
         $stmt->execute([
             ':Name' => $data['name'],
             ':Date_of_Birth' => $data['dob'],
@@ -162,15 +143,10 @@ class Defendant
         $userId = $_SESSION['user_id'] ?? null;
         $username = 'Unknown User';
         if ($userId !== null) {
-            $stmt = $db->prepare("SELECT username FROM users WHERE id = :id");
-            $stmt->execute([':id' => $userId]);
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
-            if ($user && isset($user['username'])) {
-                $username = $user['username'];
-            }
+            $user = Auth::getCurrentUser();
+            $username = $user['username'] ?? $username;
         }
 
-        // Fields to compare: mapping database field keys to data keys and readable labels
         $fields = [
             'Name' => ['key' => 'name', 'label' => 'Name'],
             'Date_of_Birth' => ['key' => 'dob', 'label' => 'Date of Birth'],
@@ -185,7 +161,6 @@ class Defendant
         foreach ($fields as $dbField => $info) {
             $oldValue = $oldData[$dbField] ?? '';
             $newValue = $data[$info['key']] ?? '';
-
             if ($oldValue != $newValue) {
                 $changes[] = "{$info['label']} changed from '{$oldValue}' to '{$newValue}'";
             }
@@ -193,39 +168,29 @@ class Defendant
 
         $changeSummary = !empty($changes) ? implode("; ", $changes) : "No changes were made.";
 
-        $logMessage = "User {$username} (ID: {$userId}) updated defendant (ID: {$defendantID}). \n {$changeSummary}";
+        $logMessage = "User {$username} (ID: {$userId}) updated defendant (ID: {$defendantID}). \n{$changeSummary}";
         LogModel::log_action($userId, $logMessage);
-
-    }    
+    }
 
     public static function delete($defendantID) {
         $db = Database::getInstance()->getConnection();
 
-        // Fetch defendant info before deletion (for logging)
         $stmt = $db->prepare("SELECT Name, Date_of_Birth, Ethnicity, Phone_Number, Address, Email FROM defendant WHERE defendant_ID = :defendant_ID");
         $stmt->execute([':defendant_ID' => $defendantID]);
         $defendant = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Delete the defendant record
         $stmt = $db->prepare("DELETE FROM defendant WHERE defendant_ID = :defendant_ID");
         $stmt->execute([':defendant_ID' => $defendantID]);
 
-        // Log the deletion
         $userId = $_SESSION['user_id'] ?? null;
         $username = 'Unknown User';
-        
         if ($userId !== null) {
-            $stmt = $db->prepare("SELECT username FROM users WHERE id = :id");
-            $stmt->execute([':id' => $userId]);
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if ($user && isset($user['username'])) {
-                $username = $user['username'];
-            }
+            $user = Auth::getCurrentUser();
+            $username = $user['username'] ?? $username;
         }
 
         $logMessage = sprintf(
-            "User %s (ID: %s) deleted defendant: Name='%s', \n DOB='%s', \n Ethnicity='%s', \n Phone='%s', \n Address='%s', \n Email='%s' (Defendant ID: %s)",
+            "User %s (ID: %s) deleted defendant: Name='%s', DOB='%s', Ethnicity='%s', Phone='%s', Address='%s', Email='%s' (Defendant ID: %s)",
             $username,
             $userId ?? 'N/A',
             $defendant['Name'] ?? 'N/A',
@@ -239,5 +204,4 @@ class Defendant
 
         LogModel::log_action($userId, $logMessage);
     }
-
 }

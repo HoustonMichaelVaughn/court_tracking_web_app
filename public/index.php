@@ -6,7 +6,6 @@ require_once '../lib/includes/mouse.php';
 require_once '../lib/includes/auth_controller.php'; // for login/logout/register logic
 require_once '../lib/includes/security.php';         // for CSRF and auth checks
 
-
 // Public: Homepage
 path('/', function($app) {
     require_once __DIR__ . '/../lib/includes/home_controller.php';
@@ -73,26 +72,33 @@ path('/register/submit', function($app) {
     register_user();
 });
 
-// manage accounts:
-
+// Manage accounts (protected)
 path('/accounts/manage', function($app) {
-    require_once __DIR__ . '/../lib/includes/auth_controller.php';
-    manage_accounts($app);
+    require_protected_access($app, function($app) {
+        require_once __DIR__ . '/../lib/includes/auth_controller.php';
+        manage_accounts($app);
+    });
 });
 
-path('/accounts/delete/{id}', function($app, $id) {
-    require_once __DIR__ . '/../lib/includes/auth_controller.php';
-    delete_user($id);
+path('/accounts/delete/{userID}', function($app, $userID) {
+    require_protected_access($app, function($app) use ($userID) {
+        require_once __DIR__ . '/../lib/includes/auth_controller.php';
+        delete_user($userID);
+    });
 });
 
-path('/accounts/edit/{id}', function($app, $id) {
-    require_once __DIR__ . '/../lib/includes/auth_controller.php';
-    edit_user_page($app, $id);
+path('/accounts/edit/{userID}', function($app, $userID) {
+    require_protected_access($app, function($app) use ($userID) {
+        require_once __DIR__ . '/../lib/includes/auth_controller.php';
+        edit_user_page($app, $userID);
+    });
 });
 
-path('/accounts/edit/{id}/submit', function($app, $id) {
-    require_once __DIR__ . '/../lib/includes/auth_controller.php';
-    update_user($id);
+path('/accounts/edit/{userID}/submit', function($app, $userID) {
+    require_protected_access($app, function($app) use ($userID) {
+        require_once __DIR__ . '/../lib/includes/auth_controller.php';
+        update_user($userID);
+    });
 });
 
 resolve();

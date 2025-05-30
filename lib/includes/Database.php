@@ -5,7 +5,7 @@ class Database
     private static $instance = null;
     private $pdo;
     private $host = 'localhost';
-    private $dbname = 'court_tracking_system';
+    private $dbname = 'court_tracking_db';
     private $username = 'root';
     private $password = 'defb29ad6c520227685b5b14feacf23f';
 

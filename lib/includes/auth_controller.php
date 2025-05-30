@@ -152,27 +152,27 @@ function update_user($id) {
             header("Location: " . BASE_URL . "/");
             exit;
         }
-    
+
         $username = $_POST['username'];
         $role = $_POST['role'];
-    
+
         $allowedRoles = ['admin', 'user'];
         if (!in_array($role, $allowedRoles)) {
             $_SESSION['error'] = "Invalid role selected.";
             header("Location: " . BASE_URL . "/accounts/manage");
             exit;
         }
-    
+
         Auth::updateUser($id, $username, $role);
-    
+
         $_SESSION['message'] = "User updated successfully.";
         header("Location: " . BASE_URL . "/accounts/manage");
         exit;
-        
+
     } catch (Exception $e) {
         $_SESSION['message'] = $e->getMessage();
         header("Location: " . BASE_URL . "/accounts/manage");
         exit;
     }
-
+}
 }

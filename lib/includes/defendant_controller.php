@@ -4,6 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 require_once __DIR__ . '/../models/Auth.php';
+require_once __DIR__ . '/../models/Logs.php';
 
 if (!Auth::isAuthenticated()) {
     header("Location: " . BASE_URL . "/login");
@@ -45,31 +46,74 @@ switch ($action) {
         exit;
 }
 
-function save_defendant($app, $id = null) {
-    // edit and add functionality combined into a single function
-
+function save_defendant($app, $defendantID = null) {
     try {
-        // do not define defendantID if using for adding
-        $isEdit = !is_null($id);
-        $defendant = $isEdit ? Defendant::getDefendantByDefendantId($id) : null;
+        $isEdit = isset($defendantID);
+        $defendant = $isEdit ? Defendant::getDefendantByDefendantID($defendantID) : null;
+
+        if ($isEdit && !$defendant) {
+            throw new Exception("Defendant not found.");
+        }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = extract_post_data(DEFENDANT_FIELDS);
+            $data = [
+                'name' => $_POST['name'] ?? '',
+                'dob' => $_POST['dob'] ?? '',
+                'ethnicity' => $_POST['ethnicity'] ?? '',
+                'phone' => $_POST['phone'] ?? '',
+                'address' => $_POST['address'] ?? '',
+                'email' => $_POST['email'] ?? ''
+            ];
 
-            // server side checking - there is also already client-side
-            if (empty($data['name']) || empty($data['dob'])) {
-                throw new Exception("Defendant NOT " . ($isEdit ? "edited" : "added") . ". Error with input.");
-            }
+            $userID = $_SESSION['user_id'] ?? null;
+            $username = $_SESSION['username'] ?? 'Unknown';
 
-            if ($isEdit) { // update database
-                Defendant::update($id, $data);
-                $successMessage = "Defendant edited successfully.";
+            if ($isEdit) {
+                $old = $defendant;
+                Defendant::update($defendantID, $data);
+
+                $fields = [
+                    'Name' => ['name', 'Name'],
+                    'Date_of_Birth' => ['dob', 'Date of Birth'],
+                    'Ethnicity' => ['ethnicity', 'Ethnicity'],
+                    'Phone_Number' => ['phone', 'Phone'],
+                    'Address' => ['address', 'Address'],
+                    'Email' => ['email', 'Email']
+                ];
+
+                $changes = [];
+                foreach ($fields as $dbField => [$key, $label]) {
+                    $before = $old[$dbField] ?? '';
+                    $after = $data[$key];
+                    if ($before !== $after) {
+                        $changes[] = "$label: '$before' → '$after'";
+                    }
+                }
+
+                $summary = $changes ? implode("; ", $changes) : "No changes were made.";
+                $log = "User $username (ID: $userID) updated defendant ID $defendantID. $summary";
+
+                LogModel::log_action($userID, $log);
+                redirect_with_success("/defendants", "Defendant updated successfully.");
             } else {
-                Defendant::create($data);
-                $successMessage = "Defendant added successfully.";
-            }
+                $newID = Defendant::create($data);
 
-            redirect_with_success("/defendant/manage", $successMessage);
+                $log = sprintf(
+                    "User %s (ID: %s) added new defendant (ID: %s):\nName: %s\nDOB: %s\nEthnicity: %s\nPhone: %s\nAddress: %s\nEmail: %s",
+                    $username,
+                    $userID,
+                    $newID,
+                    $data['name'],
+                    $data['dob'],
+                    $data['ethnicity'],
+                    $data['phone'],
+                    $data['address'],
+                    $data['email']
+                );
+
+                LogModel::log_action($userID, $log);
+                redirect_with_success("/defendants", "Defendant added successfully.");
+            }
         }
 
         ($app->render)('standard', 'forms/defendant_form', [
@@ -81,18 +125,40 @@ function save_defendant($app, $id = null) {
     }
 }
 
-function delete_defendant($app, $id) {
-    try {
-        // update database
-        Defendant::delete($id);
 
-        // Keep user on same page
-        redirect_with_success("/defendant/manage", "Defendant deleted successfully.");
-        
+function delete_defendant($app, $defendantID) {
+    try {
+        $defendant = Defendant::getDefendantByDefendantID($defendantID);
+        if (!$defendant) {
+            throw new Exception("Defendant not found.");
+        }
+
+        Defendant::delete($defendantID);
+
+        $userID = $_SESSION['user_id'] ?? null;
+        $username = $_SESSION['username'] ?? 'Unknown';
+
+        $log = sprintf(
+            "User %s (ID: %s) deleted defendant ID %s:\nName: %s\nDOB: %s\nEthnicity: %s\nPhone: %s\nAddress: %s\nEmail: %s",
+            $username,
+            $userID,
+            $defendantID,
+            $defendant['Name'] ?? 'N/A',
+            $defendant['Date_of_Birth'] ?? 'N/A',
+            $defendant['Ethnicity'] ?? 'N/A',
+            $defendant['Phone_Number'] ?? 'N/A',
+            $defendant['Address'] ?? 'N/A',
+            $defendant['Email'] ?? 'N/A'
+        );
+
+        LogModel::log_action($userID, $log);
+
+        redirect_with_success("/defendants", "Defendant deleted successfully.");
     } catch (Exception $e) {
         render_error($app, $e->getMessage());
     }
 }
+
 
 function handle_search_defendants($app) {
     if ($_SERVER['REQUEST_METHOD'] === 'GET'){

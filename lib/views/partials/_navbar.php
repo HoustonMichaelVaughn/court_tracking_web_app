@@ -37,6 +37,9 @@
             <li class="nav-item">
               <a class="nav-link" href="<?= BASE_URL ?>/register">Register Staff</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="<?= BASE_URL ?>/accounts/manage">Manage Accounts</a>
+            </li>
           <?php endif; ?>
           <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
             <li class="nav-item">

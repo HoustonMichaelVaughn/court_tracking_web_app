@@ -30,7 +30,6 @@ switch ($action) {
         exit;
 }
 
-// Add and edit functionality combined into single function
 function save_charge($app, $chargeID = null) {
     try {
         $caseID = $_GET['caseID'] ?? null;
@@ -45,10 +44,9 @@ function save_charge($app, $chargeID = null) {
             throw new Exception("Charge not found.");
         }
 
-        // POST request: save new or updated charge
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $description = $_POST['description'] ?? '';
-            $status = $_POST['status'] ?? '';
+            $description = trim($_POST['description'] ?? '');
+            $status = trim($_POST['status'] ?? '');
 
             if (empty($description) || empty($status)) {
                 throw new Exception("Description and status must be filled.");
@@ -59,94 +57,90 @@ function save_charge($app, $chargeID = null) {
                 'status' => $status
             ];
 
+            $userID = $_SESSION['user_id'] ?? null;
+            $username = $_SESSION['username'] ?? 'Unknown';
+
             if ($isEdit) {
-                $oldData = Charge::getChargeByChargeID($chargeID);
+                $oldData = $charge;
 
                 Charge::update($chargeID, $data);
 
-                $userID = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
-                $username = $_SESSION['username'] ?? 'unknown';
+                $logMessage = sprintf(
+                    "User %s (ID: %s) updated charge #%d.\nDescription: '%s' → '%s'\nStatus: '%s' → '%s'",
+                    $username,
+                    $userID,
+                    $chargeID,
+                    $oldData['description'] ?? $oldData['Description'] ?? '',
+                    $data['description'],
+                    $oldData['status'] ?? $oldData['Status'] ?? '',
+                    $data['status']
+                );
 
+                $message = "Charge updated successfully.";
+            } else {
+                Charge::create($caseID, $data);
 
-            $logMessage = sprintf(
-                "User %s (ID: %s) updated charge #%d. \n Description: '%s' → '%s', \n Status: '%s' → '%s'",
-                $username,
-                $userID,
-                $chargeID,
-                $oldData['Description'] ?? $oldData['description'] ?? '',
-                $data['description'],
-                $oldData['Status'] ?? $oldData['status'] ?? '',
-                $data['status']
-            );
+                $logMessage = sprintf(
+                    "User %s (ID: %s) added new charge to case #%d.\nDescription: '%s'\nStatus: '%s'",
+                    $username,
+                    $userID,
+                    $caseID,
+                    $data['description'],
+                    $data['status']
+                );
 
-        LogModel::log_action($userID, $logMessage);
-        $successMessage = "Charge updated successfully.";
-        } else {
-            Charge::create($caseID, $data);
+                $message = "Charge added successfully.";
+            }
 
-            $userID = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
-            $username = $_SESSION['username'] ?? 'unknown';
-
-            $logMessage = sprintf(
-                "User %s (ID: %s) added new charge to case #%d. \n Description: '%s', \n Status: '%s'",
-            $username,
-            $userID,
-            $caseID,
-            $data['description'],
-            $data['status']
-            );
-
-        LogModel::log_action($userID, $logMessage);
-        $successMessage = "Charge added successfully.";
-        }
-        
-            redirect_with_success("/case/edit/" . $caseID, $successMessage);
+            LogModel::log_action($userID, $logMessage);
+            redirect_with_success("/case/edit/" . $caseID, $message);
         }
 
-        // GET request: render form
+        // GET: Render form
         ($app->render)('standard', 'forms/charge_form', [
             'caseID' => $caseID,
             'charge' => $charge,
             'isEdit' => $isEdit,
         ]);
 
-
     } catch (Exception $e) {
         render_error($app, $e->getMessage());
     }
 }
 
-function delete_charge($app, $id) {
+function delete_charge($app, $chargeID) {
     try {
         $caseID = $_GET['caseID'] ?? null;
         if (!$caseID) {
             throw new Exception("Case ID required.");
         }
 
-    
-        // Fetch charge details before deleting
-        $charge = Charge::getChargeByChargeID($id);
+        $charge = Charge::getChargeByChargeID($chargeID);
         if (!$charge) {
             throw new Exception("Charge not found.");
         }
 
-        // Safely access fields (assuming lowercase keys)
-        $description = $charge['description'] ?? '[unknown]';
-        $status = $charge['status'] ?? '[unknown]';
-        
-        // perform database operation
+        $description = $charge['description'] ?? $charge['Description'] ?? '[unknown]';
+        $status = $charge['status'] ?? $charge['Status'] ?? '[unknown]';
 
-        Charge::delete($id);
+        Charge::delete($chargeID);
+
+        $userID = $_SESSION['user_id'] ?? null;
+        $username = $_SESSION['username'] ?? 'Unknown';
+
+        $logMessage = sprintf(
+            "User %s (ID: %s) deleted charge #%d from case #%d.\nDescription: '%s'\nStatus: '%s'",
+            $username,
+            $userID,
+            $chargeID,
+            $caseID,
+            $description,
+            $status
+        );
+
+        LogModel::log_action($userID, $logMessage);
+
         redirect_with_success("/case/edit/" . $caseID, "Charge deleted successfully.");
-
-        $details = "Deleted charge ID $id from case ID $caseID. \n ";
-        $details .= "Details - Description: '{$charge['Description']}',\n Status: '{$charge['Status']}'.";
-
-        LogModel::log_action($_SESSION['user_id'], $details);
-
-        // Redirect back to edit case page
-        redirect_with_success("/case/edit/" . $caseID, "Charge deleted successfully.");  
-        
     } catch (Exception $e) {
         render_error($app, $e->getMessage());
     }

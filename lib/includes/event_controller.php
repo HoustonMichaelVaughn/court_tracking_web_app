@@ -4,15 +4,14 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require_once __DIR__ . '/../models/Auth.php';
-require_once __DIR__ . '/../models/logs.php';
+require_once __DIR__ . '/../models/Logs.php';
+require_once __DIR__ . '/../models/CourtEvent.php';
+require_once __DIR__ . '/../includes/helpers.php';
 
 if (!Auth::isAuthenticated()) {
     header("Location: " . BASE_URL . "/login");
     exit;
 }
-
-require_once __DIR__ . '/../models/CourtEvent.php';
-require_once __DIR__ . '/../includes/helpers.php';
 
 // internal routing within controller for CRUD operations
 switch ($action) {
@@ -30,79 +29,82 @@ switch ($action) {
         exit;
 }
 
-// combined function for adding and editing for DRY
+// Combined add/edit logic
 function save_event($app, $eventID = null) {
     try {
         $caseID = $_GET['caseID'] ?? null;
         if (!$caseID) {
-            throw new Exception("CaseID required.");
+            throw new Exception("Case ID required.");
         }
-    
+
         $isEdit = isset($eventID);
         $event = $isEdit ? CourtEvent::getEventByEventID($eventID) : null;
-    
-        if ($isEdit && !$event) { // only relevant for edit operations
+
+        if ($isEdit && !$event) {
             throw new Exception("Event not found.");
         }
-    
-        // get user data if POST request
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $location = $_POST['location'] ?? '';
-            $description = $_POST['description'] ?? '';
-            $date = $_POST['date'] ?? '';
-            
-            // server-side checking, client-side already implemented
+            $location = trim($_POST['location'] ?? '');
+            $description = trim($_POST['description'] ?? '');
+            $date = trim($_POST['date'] ?? '');
+
             if (empty($location) || empty($description) || empty($date)) {
-                throw new Exception("All fields must be filled out.");
+                throw new Exception("All fields are required.");
             }
-    
+
             $data = [
                 'location' => $location,
                 'description' => $description,
                 'date' => $date
             ];
-            
-            // database operations
-            if ($isEdit) {
-                $oldData = $event;
 
+            $userID = $_SESSION['user_id'] ?? null;
+            $username = $_SESSION['username'] ?? 'Unknown';
+
+            if ($isEdit) {
+                $old = $event;
                 CourtEvent::update($eventID, $data);
 
                 $changes = [];
-                foreach (['location', 'description', 'date'] as $field) {
-                    $oldValue = $oldData[ucfirst($field)] ?? '';
-                    $newValue = $data[$field] ?? '';
-                    if ($oldValue != $newValue) {
-                        $changes[] = ucfirst($field) . " changed from '$oldValue' to '$newValue'";
+                foreach (['location', 'description', 'date'] as $key) {
+                    $oldVal = $old[ucfirst($key)] ?? '';
+                    $newVal = $data[$key];
+                    if ($oldVal !== $newVal) {
+                        $changes[] = ucfirst($key) . " changed from '$oldVal' to '$newVal'";
                     }
                 }
 
-                $changeSummary = implode("; ", $changes);
-                if (empty($changeSummary)) {
-                    $changeSummary = "No changes were made.";
-                }
+                $changeSummary = $changes ? implode("; ", $changes) : "No changes were made.";
 
-                LogModel::log_action($_SESSION['user_id'], "Updated event ID $eventID for case ID $caseID. $changeSummary");
+                $logMessage = "User $username (ID: $userID) updated event #$eventID for case #$caseID.\n$changeSummary";
                 $successMessage = "Event updated successfully.";
             } else {
                 CourtEvent::create($caseID, $data);
 
-
-                $details = "Location: '{$data['location']}'; \n Description: '{$data['description']}'; \n Date: '{$data['date']}'";
-                LogModel::log_action($_SESSION['user_id'], "Created new event for case ID $caseID. $details");
+                $logMessage = sprintf(
+                    "User %s (ID: %s) created new event for case #%d.\nLocation: '%s'; Description: '%s'; Date: '%s'",
+                    $username,
+                    $userID,
+                    $caseID,
+                    $data['location'],
+                    $data['description'],
+                    $data['date']
+                );
 
                 $successMessage = "Event added successfully.";
             }
-    
+
+            LogModel::log_action($userID, $logMessage);
             redirect_with_success("/case/edit/" . $caseID, $successMessage);
         }
 
-        // for GET request, display standard form
+        // Render form (GET)
         ($app->render)('standard', 'forms/event_form', [
             'caseID' => $caseID,
             'event' => $event,
             'isEdit' => $isEdit,
-        ]);      
+        ]);
 
     } catch (Exception $e) {
         render_error($app, $e->getMessage());
@@ -113,32 +115,38 @@ function delete_event($app, $eventID) {
     try {
         $caseID = $_GET['caseID'] ?? null;
         if (!$caseID) {
-            throw new Exception("CaseID required.");
+            throw new Exception("Case ID required.");
         }
-        
-        // Fetch event details before deleting
+
         $event = CourtEvent::getEventByEventID($eventID);
         if (!$event) {
             throw new Exception("Event not found.");
         }
 
-        // Safely access fields
-        $location = $event['location'] ?? '[unknown]';
-        $description = $event['description'] ?? '[unknown]';
-        $date = $event['date'] ?? '[unknown]';
+        $location = $event['location'] ?? $event['Location'] ?? '[unknown]';
+        $description = $event['description'] ?? $event['Description'] ?? '[unknown]';
+        $date = $event['date'] ?? $event['Date'] ?? '[unknown]';
 
-        // database operation
         CourtEvent::delete($eventID);
 
+        $userID = $_SESSION['user_id'] ?? null;
+        $username = $_SESSION['username'] ?? 'Unknown';
 
-        $details = "Deleted event ID $eventID from case ID $caseID. \n ";
-        $details .= "Details - Location: '{$event['Location']}', \n Description: '{$event['Description']}', \n Date: '{$event['Date']}'.";
+        $logMessage = sprintf(
+            "User %s (ID: %s) deleted event #%d from case #%d.\nLocation: '%s'; Description: '%s'; Date: '%s'",
+            $username,
+            $userID,
+            $eventID,
+            $caseID,
+            $location,
+            $description,
+            $date
+        );
 
-        LogModel::log_action($_SESSION['user_id'], $details);
+        LogModel::log_action($userID, $logMessage);
 
         redirect_with_success("/case/edit/" . $caseID, "Event deleted successfully.");
 
-        
     } catch (Exception $e) {
         render_error($app, $e->getMessage());
     }
