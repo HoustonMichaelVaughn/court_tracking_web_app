@@ -175,4 +175,3 @@ function update_user($id) {
         exit;
     }
 }
-}
