@@ -3,6 +3,7 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+require_once __DIR__ . '/../models/Logs.php';
 require_once __DIR__ . '/../models/Auth.php';
 
 if (!Auth::isAuthenticated()) {
@@ -40,30 +41,68 @@ switch ($action) {
         exit;
 }
 
-function save_lawyer($app, $id = null) {
-    // edit and add functionality combined into a single function
+function save_lawyer($app, $lawyerID = null) {
     try {
-        // do not define defendantID if using for adding
-        $isEdit = !is_null($id);
-        $lawyer = $isEdit ? Lawyer::getLawyerByLawyerId($id) : null;
+        $isEdit = isset($lawyerID);
+        $lawyer = $isEdit ? Lawyer::getLawyerByLawyerID($lawyerID) : null;
+
+        if ($isEdit && !$lawyer) {
+            throw new Exception("Lawyer not found.");
+        }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = extract_post_data(LAWYER_FIELDS);
+            $data = [
+                'name' => $_POST['name'] ?? '',
+                'email' => $_POST['email'] ?? '',
+                'phone' => $_POST['phone'] ?? '',
+                'firm' => $_POST['firm'] ?? ''
+            ];
 
-            // server side checking - there is also already client-side
-            if (empty($data['name'])) {
-                throw new Exception("Lawyer NOT " . ($isEdit ? "edited" : "added") . ". Error with input.");
-            }
+            $userID = $_SESSION['user_id'] ?? null;
+            $username = $_SESSION['username'] ?? 'Unknown';
 
-            if ($isEdit) { // update database
-                Lawyer::update($id, $data);
-                $successMessage = "Lawyer updated successfully.";
+            if ($isEdit) {
+                $old = $lawyer;
+                Lawyer::update($lawyerID, $data);
+
+                $fields = [
+                    'Name' => ['name', 'Name'],
+                    'Email' => ['email', 'Email'],
+                    'Phone_Number' => ['phone', 'Phone'],
+                    'Firm' => ['firm', 'Firm']
+                ];
+
+                $changes = [];
+                foreach ($fields as $dbField => [$key, $label]) {
+                    $before = $old[$dbField] ?? '';
+                    $after = $data[$key];
+                    if ($before !== $after) {
+                        $changes[] = "$label: '$before' → '$after'";
+                    }
+                }
+
+                $summary = $changes ? implode("; ", $changes) : "No changes were made.";
+                $log = "User $username (ID: $userID) updated lawyer ID $lawyerID. $summary";
+
+                LogModel::log_action($userID, $log);
+                redirect_with_success("/lawyers", "Lawyer updated successfully.");
             } else {
-                Lawyer::create($data);
-                $successMessage = "Lawyer added successfully.";
-            }
+                $newID = Lawyer::create($data);
 
-            redirect_with_success("/lawyer/manage", $successMessage);
+                $log = sprintf(
+                    "User %s (ID: %s) added new lawyer (ID: %s):\nName: %s\nEmail: %s\nPhone: %s\nFirm: %s",
+                    $username,
+                    $userID,
+                    $newID,
+                    $data['name'],
+                    $data['email'],
+                    $data['phone'],
+                    $data['firm']
+                );
+
+                LogModel::log_action($userID, $log);
+                redirect_with_success("/lawyers", "Lawyer added successfully.");
+            }
         }
 
         ($app->render)('standard', 'forms/lawyer_form', [
@@ -76,13 +115,38 @@ function save_lawyer($app, $id = null) {
 }
 
 
-function delete_lawyer($app, $id) {
 
-    Lawyer::delete($id);
+function delete_lawyer($app, $lawyerID) {
+    try {
+        $lawyer = Lawyer::getLawyerByLawyerID($lawyerID);
+        if (!$lawyer) {
+            throw new Exception("Lawyer not found.");
+        }
 
-    // Keep user on same page
-    redirect_with_success("/lawyer/manage", "Lawyer deleted successfully.");
+        Lawyer::delete($lawyerID);
+
+        $userID = $_SESSION['user_id'] ?? null;
+        $username = $_SESSION['username'] ?? 'Unknown';
+
+        $log = sprintf(
+            "User %s (ID: %s) deleted lawyer ID %s:\nName: %s\nEmail: %s\nPhone: %s\nFirm: %s",
+            $username,
+            $userID,
+            $lawyerID,
+            $lawyer['Name'] ?? 'N/A',
+            $lawyer['Email'] ?? 'N/A',
+            $lawyer['Phone_Number'] ?? 'N/A',
+            $lawyer['Firm'] ?? 'N/A'
+        );
+
+        LogModel::log_action($userID, $log);
+
+        redirect_with_success("/lawyers", "Lawyer deleted successfully.");
+    } catch (Exception $e) {
+        render_error($app, $e->getMessage());
+    }
 }
+
 
 function show_manage_lawyers($app) {
     // get all lawyers from DB
