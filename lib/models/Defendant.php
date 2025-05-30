@@ -54,6 +54,8 @@ class Defendant
         );
 
         LogModel::log_action($userId, $logMessage);
+
+        return $defendantID;
     }
 
     public function all(): array {
@@ -142,38 +144,38 @@ class Defendant
         $username = 'Unknown User';
         if ($userId !== null) {
             $user = Auth::getCurrentUser();
-            if ($user && isset($user['username'])) {
-                $username = $user['username'];
-            }
+            $username = $user['username'] ?? $username;
         }
 
         $fields = [
-            'Name' => ['name', 'Name'],
-            'Date_of_Birth' => ['dob', 'Date of Birth'],
-            'Address' => ['address', 'Address'],
-            'Ethnicity' => ['ethnicity', 'Ethnicity'],
-            'Phone_Number' => ['phone', 'Phone Number'],
-            'Email' => ['email', 'Email'],
+            'Name' => ['key' => 'name', 'label' => 'Name'],
+            'Date_of_Birth' => ['key' => 'dob', 'label' => 'Date of Birth'],
+            'Address' => ['key' => 'address', 'label' => 'Address'],
+            'Ethnicity' => ['key' => 'ethnicity', 'label' => 'Ethnicity'],
+            'Phone_Number' => ['key' => 'phone', 'label' => 'Phone Number'],
+            'Email' => ['key' => 'email', 'label' => 'Email'],
         ];
 
         $changes = [];
-        foreach ($fields as $dbField => [$formKey, $label]) {
+
+        foreach ($fields as $dbField => $info) {
             $oldValue = $oldData[$dbField] ?? '';
-            $newValue = $data[$formKey] ?? '';
-            if ($oldValue !== $newValue) {
-                $changes[] = "$label changed from '$oldValue' to '$newValue'";
+            $newValue = $data[$info['key']] ?? '';
+            if ($oldValue != $newValue) {
+                $changes[] = "{$info['label']} changed from '{$oldValue}' to '{$newValue}'";
             }
         }
 
-        $summary = !empty($changes) ? implode("; ", $changes) : "No changes detected.";
-        $logMessage = "User {$username} (ID: {$userId}) updated defendant (ID: {$defendantID}). $summary";
+        $changeSummary = !empty($changes) ? implode("; ", $changes) : "No changes were made.";
+
+        $logMessage = "User {$username} (ID: {$userId}) updated defendant (ID: {$defendantID}). \n{$changeSummary}";
         LogModel::log_action($userId, $logMessage);
     }
 
     public static function delete($defendantID) {
         $db = Database::getInstance()->getConnection();
 
-        $stmt = $db->prepare("SELECT * FROM defendant WHERE defendant_ID = :defendant_ID");
+        $stmt = $db->prepare("SELECT Name, Date_of_Birth, Ethnicity, Phone_Number, Address, Email FROM defendant WHERE defendant_ID = :defendant_ID");
         $stmt->execute([':defendant_ID' => $defendantID]);
         $defendant = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -184,9 +186,7 @@ class Defendant
         $username = 'Unknown User';
         if ($userId !== null) {
             $user = Auth::getCurrentUser();
-            if ($user && isset($user['username'])) {
-                $username = $user['username'];
-            }
+            $username = $user['username'] ?? $username;
         }
 
         $logMessage = sprintf(

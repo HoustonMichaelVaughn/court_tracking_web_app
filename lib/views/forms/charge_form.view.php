@@ -1,7 +1,7 @@
 
 <h2><?= $isEdit ? 'Edit Charge' : 'Add Charge' ?></h2>
 <div class="mb-4">
-  <a href="<?= BASE_URL ?>/case/edit/<?= $id ?>" class="btn btn-outline-danger">← Cancel</a>
+  <a href="<?= BASE_URL ?>/case/edit/<?= $caseID ?>" class="btn btn-outline-danger">← Cancel</a>
 </div>
 
 <form method="POST" action="" class="mt-4">

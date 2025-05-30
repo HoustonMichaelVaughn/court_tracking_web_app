@@ -6,7 +6,6 @@ require_once '../lib/includes/mouse.php';
 require_once '../lib/includes/auth_controller.php'; // for login/logout/register logic
 require_once '../lib/includes/security.php';         // for CSRF and auth checks
 
-
 // Public: Homepage
 path('/', function($app) {
     require_once __DIR__ . '/../lib/includes/home_controller.php';
@@ -73,8 +72,7 @@ path('/register/submit', function($app) {
     register_user();
 });
 
-
-// manage accounts:
+// Manage accounts (protected)
 path('/accounts/manage', function($app) {
     require_protected_access($app, function($app) {
         require_once __DIR__ . '/../lib/includes/auth_controller.php';
@@ -102,4 +100,5 @@ path('/accounts/edit/{userID}/submit', function($app, $userID) {
         update_user($userID);
     });
 });
+
 resolve();

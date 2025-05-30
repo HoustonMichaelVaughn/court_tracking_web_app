@@ -8,7 +8,7 @@
 
   <?php if (!empty($logs)): ?>
     <!-- Log List -->
-    <ol start="<?= ($currentPage - 1) * 10 + 1 ?>" class="list-group list-group-numbered">
+    <ol start="<?= ($currentPage - 1) * 5 + 1 ?>" class="list-group list-group-numbered">
 
       <?php foreach ($logs as $log): ?>
         <li class="list-group-item mb-4 p-4 shadow-sm rounded">

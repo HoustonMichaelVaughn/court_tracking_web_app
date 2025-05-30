@@ -16,15 +16,11 @@ class CaseRecord
 
         $caseID = $db->lastInsertId();
 
-        // Log creation
         $userId = $_SESSION['user_id'] ?? null;
         $username = 'Unknown User';
-
         if ($userId !== null) {
             $user = Auth::getCurrentUser();
-            if ($user && isset($user['username'])) {
-                $username = $user['username'];
-            }
+            $username = $user['username'] ?? $username;
         }
 
         $defendant = Defendant::getDefendantByDefendantID($defendant_id);
@@ -51,7 +47,6 @@ class CaseRecord
             throw new InvalidArgumentException("Invalid Case ID.");
         }
 
-        // Fetch case details before deletion
         $stmt = $db->prepare("
             SELECT cr.case_ID, d.name AS defendant_name, l.name AS lawyer_name, ch.description AS charge_type, ce.description AS event_description, ce.date AS event_date
             FROM caserecord cr
@@ -76,19 +71,14 @@ class CaseRecord
             }
         }
 
-        // Delete operation
         $stmt = $db->prepare("DELETE FROM caserecord WHERE case_ID = :caseID");
         $stmt->execute([':caseID' => $id]);
 
-        // Logging
         $userId = $_SESSION['user_id'] ?? null;
         $username = 'Unknown User';
-
         if ($userId !== null) {
             $user = Auth::getCurrentUser();
-            if ($user && isset($user['username'])) {
-                $username = $user['username'];
-            }
+            $username = $user['username'] ?? $username;
         }
 
         $logMessage = sprintf(
@@ -105,20 +95,37 @@ class CaseRecord
         LogModel::log_action($userId, $logMessage);
     }
 
-    public static function getAllCasesWithDetails()
+    public static function getAllCasesWithDetails($caseID = null)
     {
         $db = Database::getInstance()->getConnection();
 
-        $stmt = $db->query("
-            SELECT cr.case_ID, d.name AS defendant_name, l.name AS lawyer_name
-            FROM caserecord cr
-            LEFT JOIN defendant d ON cr.defendant_ID = d.defendant_ID
-            LEFT JOIN case_lawyer cl ON cr.case_ID = cl.case_ID
-            LEFT JOIN lawyer l ON cl.lawyer_ID = l.lawyer_ID
-            ORDER BY cr.case_ID DESC
-        ");
-
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if ($caseID === null) {
+            $stmt = $db->prepare("
+                SELECT cr.case_ID, d.name AS defendant_name, l.name AS lawyer_name
+                FROM caserecord cr
+                LEFT JOIN defendant d ON cr.defendant_ID = d.defendant_ID
+                LEFT JOIN case_lawyer cl ON cr.case_ID = cl.case_ID
+                LEFT JOIN lawyer l ON cl.lawyer_ID = l.lawyer_ID
+                ORDER BY cr.case_ID DESC
+            ");
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } else {
+            $stmt = $db->prepare("
+                SELECT cr.case_ID, d.name AS defendant_name, l.name AS lawyer_name,
+                       ch.description AS charge_type, ce.description AS event_description, ce.date AS event_date
+                FROM caserecord cr
+                LEFT JOIN defendant d ON cr.defendant_ID = d.defendant_ID
+                LEFT JOIN case_lawyer cl ON cr.case_ID = cl.case_ID
+                LEFT JOIN lawyer l ON cl.lawyer_ID = l.lawyer_ID
+                LEFT JOIN charge ch ON cr.case_ID = ch.case_ID
+                LEFT JOIN court_event ce ON cr.case_ID = ce.case_ID
+                WHERE cr.case_ID = :caseID
+                ORDER BY cr.case_ID DESC
+            ");
+            $stmt->execute([':caseID' => $caseID]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
     }
 
     public static function linkLawyer($id, $lawyerID)
@@ -129,30 +136,29 @@ class CaseRecord
     }
 
     public static function getStatistics() {
-        $db = Database::getInstance();
-        $pdo = $db->getConnection();
+        $db = Database::getInstance()->getConnection();
 
-        $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM caserecord");
+        $stmt = $db->prepare("SELECT COUNT(*) as total FROM caserecord");
         $stmt->execute();
         $total = $stmt->fetchColumn();
 
-        $stmt = $pdo->prepare("SELECT COUNT(DISTINCT case_ID) FROM charge WHERE LOWER(status) IN ('open', 'active')");
-        $stmt->execute();
-        $active = $stmt->fetchColumn();
-
-        $stmt = $pdo->prepare("SELECT COUNT(DISTINCT case_ID) FROM charge WHERE LOWER(status) = 'pending'");
+        $stmt = $db->prepare("SELECT COUNT(DISTINCT case_ID) FROM charge WHERE LOWER(status) = 'pending'");
         $stmt->execute();
         $pending = $stmt->fetchColumn();
 
-        $stmt = $pdo->prepare("SELECT COUNT(DISTINCT case_ID) FROM charge WHERE LOWER(status) = 'closed'");
+        $stmt = $db->prepare("SELECT COUNT(DISTINCT case_ID) FROM charge WHERE LOWER(status) = 'resolved'");
         $stmt->execute();
-        $closed = $stmt->fetchColumn();
+        $resolved = $stmt->fetchColumn();
+
+        $stmt = $db->prepare("SELECT COUNT(DISTINCT case_ID) FROM charge WHERE LOWER(status) = 'dismissed'");
+        $stmt->execute();
+        $dismissed = $stmt->fetchColumn();
 
         return [
             'total' => $total,
-            'active' => $active,
             'pending' => $pending,
-            'closed' => $closed
+            'resolved' => $resolved,
+            'dismissed' => $dismissed
         ];
     }
 }

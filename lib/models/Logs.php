@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../includes/Database.php';
+require_once __DIR__ . '/Auth.php';
 
 class LogModel
 {
@@ -10,7 +11,7 @@ class LogModel
             $db = Database::getInstance()->getConnection();
 
             // Get username
-            $user = User::findById($db, $userID);
+            $user = Auth::getCurrentUser();
             $username = $user ? $user['username'] : "User unknown (ID: $userID)";
 
             // Final message
@@ -55,5 +56,19 @@ class LogModel
         $db = Database::getInstance()->getConnection();
         $stmt = $db->query("SELECT COUNT(*) FROM logs");
         return $stmt->fetchColumn();
+    }
+
+    public static function getRecentLogs($db, $limit = 3)
+    {
+        $stmt = $db->prepare("
+            SELECT logs.action, logs.created_at, users.username
+            FROM logs
+            JOIN users ON logs.user_id = users.id
+            ORDER BY logs.created_at DESC
+            LIMIT :limit
+        ");
+        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

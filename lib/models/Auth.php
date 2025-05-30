@@ -23,7 +23,6 @@ class Auth {
         $_SESSION['staff_type'] = $user['staff_type'];
 
         LogModel::log_action($user['id'], "User '{$username}' logged in.");
-
         return true;
     }
 
@@ -37,6 +36,21 @@ class Auth {
 
     public static function isAuthenticated() {
         return isset($_SESSION['user_id']);
+    }
+
+    public static function isAdmin() {
+        return isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
+    }
+
+    public static function getCurrentUser() {
+        if (!self::isAuthenticated()) {
+            return null;
+        }
+
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+        $stmt->execute([$_SESSION['user_id']]);
+        return $stmt->fetch();
     }
 
     public static function register($username, $password, $confirm) {
@@ -62,10 +76,6 @@ class Auth {
         $newUserId = $db->lastInsertId();
         $adminId = $_SESSION['user_id'] ?? null;
         LogModel::log_action($adminId, "Registered new user '{$username}' (ID: $newUserId, Role: $role).");
-    }
-
-    public static function isAdmin() {
-        return isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
     }
 
     public static function getAllUsers(): array {
@@ -107,15 +117,17 @@ class Auth {
 
         $db = Database::getInstance()->getConnection();
 
-        $oldUser = self::getUserById($id);
-        $oldUsername = $oldUser['username'] ?? 'Unknown';
-        $oldRole = $oldUser['role'] ?? 'Unknown';
-
+        // Check for duplicate username
         $checkStmt = $db->prepare("SELECT id FROM users WHERE username = ? AND id != ?");
         $checkStmt->execute([$username, $id]);
         if ($checkStmt->fetch()) {
             throw new Exception("Username already exists.");
         }
+
+        // Fetch old values for logging
+        $oldUser = self::getUserById($id);
+        $oldUsername = $oldUser['username'] ?? 'Unknown';
+        $oldRole = $oldUser['role'] ?? 'Unknown';
 
         $stmt = $db->prepare("UPDATE users SET username = ?, role = ? WHERE id = ?");
         $success = $stmt->execute([$username, $role, $id]);

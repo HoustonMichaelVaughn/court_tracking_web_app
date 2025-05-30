@@ -1,14 +1,16 @@
 <?php
 
 
-ob_start();  // Prevent premature output
+ob_start();
 require_once __DIR__ . '/../models/Auth.php';
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
+
 function login_page($app) {
     ($app->render)("standard", "authentication/login");
 }
@@ -22,6 +24,7 @@ function login_user() {
         if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
             throw new Exception("Invalid CSRF token");
         }
+
         if (!$username || !preg_match('/^[a-zA-Z0-9_]{3,30}$/', $username)) {
             throw new Exception("Invalid username format.");
         }
@@ -33,7 +36,7 @@ function login_user() {
         Auth::login($username, $password);
 
         if (session_status() === PHP_SESSION_ACTIVE) {
-            session_regenerate_id(true);  // prevent session fixation
+            session_regenerate_id(true);
         }
 
         header("Location: " . BASE_URL . "/");
@@ -73,6 +76,7 @@ function register_user() {
         if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
             throw new Exception("Invalid CSRF token");
         }
+
         if (!$username || !preg_match('/^[a-zA-Z0-9_]{3,30}$/', $username)) {
             throw new Exception("Invalid username format.");
         }
@@ -170,4 +174,5 @@ function update_user($id) {
         header("Location: " . BASE_URL . "/accounts/manage");
         exit;
     }
+}
 }

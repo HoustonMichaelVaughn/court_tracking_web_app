@@ -55,6 +55,7 @@ class Lawyer
         );
 
         LogModel::log_action($userId, $logMessage);
+
         return $lawyerID;
     }
 
@@ -152,10 +153,12 @@ class Lawyer
     {
         $db = Database::getInstance()->getConnection();
 
+        // Fetch lawyer info before deletion
         $stmt = $db->prepare("SELECT Name, Email, Phone_Number, Firm FROM lawyer WHERE lawyer_ID = :lawyer_ID");
         $stmt->execute([':lawyer_ID' => $lawyerID]);
         $lawyer = $stmt->fetch(PDO::FETCH_ASSOC);
 
+        // Delete the record
         $stmt = $db->prepare("DELETE FROM lawyer WHERE lawyer_ID = :lawyer_ID");
         $stmt->execute([':lawyer_ID' => $lawyerID]);
 

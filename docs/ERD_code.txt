@@ -1,15 +1,8 @@
-Table Case {
-  Case_ID integer [primary key]
-  Defendant_ID integer
-  Created_At timestamp [default: `now()`]
-  Updated_At timestamp [default: `now()`]
-}
-
 Table Defendant {
-  Defendant_ID integer [primary key]
+  defendant_ID integer [primary key]
   Name varchar
   Date_of_Birth date
-  Address varchar
+  Address text
   Ethnicity varchar
   Phone_Number varchar
   Email varchar
@@ -17,17 +10,24 @@ Table Defendant {
   Updated_At timestamp [default: `now()`]
 }
 
+Table CaseRecord {
+  case_ID integer [primary key]
+  defendant_ID integer
+  Created_At timestamp [default: `now()`]
+  Updated_At timestamp [default: `now()`]
+}
+
 Table Charge {
-  Charge_ID integer [primary key]
-  Case_ID integer
-  Description varchar
+  charge_ID integer [primary key]
+  case_ID integer
+  Description text
   Status varchar
   Created_At timestamp [default: `now()`]
   Updated_At timestamp [default: `now()`]
 }
 
 Table Lawyer {
-  Lawyer_ID integer [primary key]
+  lawyer_ID integer [primary key]
   Name varchar
   Email varchar
   Phone_Number varchar
@@ -37,14 +37,13 @@ Table Lawyer {
 }
 
 Table Case_Lawyer {
-  Case_ID integer
-  Lawyer_ID integer
-  [primary key: Case_ID, Lawyer_ID]
+  case_ID integer [primary key]
+  lawyer_ID integer [primary key]
 }
 
 Table Court_Event {
   Event_ID integer [primary key]
-  Case_ID integer
+  case_ID integer
   Location varchar
   Description varchar
   Date date
@@ -52,9 +51,24 @@ Table Court_Event {
   Updated_At timestamp [default: `now()`]
 }
 
+Table Users {
+  id integer [primary key]
+  username varchar [unique]
+  password varchar
+  role varchar
+}
+
+Table Logs {
+  log_id integer [primary key]
+  user_id integer
+  action text
+  created_at datetime [default: `now()`]
+}
+
 // Relationships
-Ref: Case.Defendant_ID > Defendant.Defendant_ID
-Ref: Charge.Case_ID > Case.Case_ID
-Ref: Case_Lawyer.Case_ID > Case.Case_ID
-Ref: Case_Lawyer.Lawyer_ID > Lawyer.Lawyer_ID
-Ref: Court_Event.Case_ID > Case.Case_ID
+Ref: CaseRecord.defendant_ID > Defendant.defendant_ID [delete: cascade]
+Ref: Charge.case_ID > CaseRecord.case_ID [delete: cascade]
+Ref: Case_Lawyer.case_ID > CaseRecord.case_ID [delete: cascade]
+Ref: Case_Lawyer.lawyer_ID > Lawyer.lawyer_ID [delete: cascade]
+Ref: Court_Event.case_ID > CaseRecord.case_ID [delete: cascade]
+Ref: Logs.user_id > Users.id
