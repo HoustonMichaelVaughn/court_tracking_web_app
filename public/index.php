@@ -73,4 +73,33 @@ path('/register/submit', function($app) {
     register_user();
 });
 
+
+// manage accounts:
+path('/accounts/manage', function($app) {
+    require_protected_access($app, function($app) {
+        require_once __DIR__ . '/../lib/includes/auth_controller.php';
+        manage_accounts($app);
+    });
+});
+
+path('/accounts/delete/{userID}', function($app, $userID) {
+    require_protected_access($app, function($app) use ($userID) {
+        require_once __DIR__ . '/../lib/includes/auth_controller.php';
+        delete_user($userID);
+    });
+});
+
+path('/accounts/edit/{userID}', function($app, $userID) {
+    require_protected_access($app, function($app) use ($userID) {
+        require_once __DIR__ . '/../lib/includes/auth_controller.php';
+        edit_user_page($app, $userID);
+    });
+});
+
+path('/accounts/edit/{userID}/submit', function($app, $userID) {
+    require_protected_access($app, function($app) use ($userID) {
+        require_once __DIR__ . '/../lib/includes/auth_controller.php';
+        update_user($userID);
+    });
+});
 resolve();
