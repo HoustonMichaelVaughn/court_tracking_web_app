@@ -37,7 +37,7 @@ function compile_app(&$app)
     //  Used to finalise the app function. Defines the function render and set_message
     //  This are called when callback is trigged in resolve. 
     $app->render = function ($layout, $content, $data = []) use (&$app) {
-        DEFINE("VIEWS", __DIR__ . '/../views');
+        DEFINE("VIEWS", realpath(__DIR__ . '/../views'));
         DEFINE("PARTIALS", VIEWS . '/partials');
 
         foreach (get_object_vars($app) as $key => $value) {
