@@ -7,7 +7,7 @@
     <title>Court Outcome Tracking</title>
   </head>
   <body>
-    <?php require_once __DIR__ . '/../partials/_navbar.php'; ?>
+    <?php require_once __DIR__ . '/partials/_navbar.php'; ?>
 
     <div class="container mt-4">
         <?php require_once __DIR__ . "/../" . $content . ".view.php"; ?>
