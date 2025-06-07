@@ -17,7 +17,8 @@ path('/', function($app) {
 // Protected views
 path('/cases', function($app) {
     require_protected_access($app, function($app) {
-        ($app->render)('standard', 'entities/all_entities/all_cases');
+        require_once __DIR__ . '/../controllers/case_controller.php';
+        show_manage_cases($app);
     });
 });
 
