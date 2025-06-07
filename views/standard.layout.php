@@ -11,7 +11,7 @@
 
     <div class="container mt-4">
         <?php
-        $viewPath = __DIR__ . "/" . ltrim($content, '/');
+        $viewPath = VIEWS . "/" . ltrim($content, '/');
         require_once $viewPath . ".view.php";
         ?>
     </div>
