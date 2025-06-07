@@ -105,7 +105,7 @@ function save_lawyer($app, $lawyerID = null) {
             }
         }
 
-        ($app->render)('standard', 'forms/lawyer_form', [
+        ($app->render)('standard', 'entities/forms/lawyer_form', [
             'lawyer' => $lawyer,
             'isEdit' => $isEdit,
         ]);
