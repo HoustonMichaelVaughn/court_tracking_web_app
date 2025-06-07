@@ -390,7 +390,7 @@ function show_manage_cases($app) {
         // query all cases
         $cases = CaseRecord::getAllCasesWithDetails();
 
-        ($app->render)('standard', 'all_entities/all_cases', [
+        ($app->render)('standard', 'entities/all_entities/all_cases', [
             'cases' => $cases
         ]);
     } catch (Exception $e) {
