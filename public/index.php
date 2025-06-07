@@ -14,19 +14,19 @@ path('/', function($app) {
 // Protected views
 path('/cases', function($app) {
     require_protected_access($app, function($app) {
-        ($app->render)('standard', 'manage_entities/manage_cases');
+        ($app->render)('standard', 'entities/manage_entities/manage_cases');
     });
 });
 
 path('/defendants', function($app) {
     require_protected_access($app, function($app) {
-        ($app->render)('standard', 'manage_entities/manage_defendants');
+        ($app->render)('standard', 'entities/manage_entities/manage_defendants');
     });
 });
 
 path('/lawyers', function($app) {
     require_protected_access($app, function($app) {
-        ($app->render)('standard', 'manage_entities/manage_lawyers');
+        ($app->render)('standard', 'entities/manage_entities/manage_lawyers');
     });
 });
 

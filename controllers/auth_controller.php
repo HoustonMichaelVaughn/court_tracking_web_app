@@ -12,7 +12,7 @@ if (!isset($_SESSION['csrf_token'])) {
 }
 
 function login_page($app) {
-    ($app->render)("standard", "authentication/login");
+    ($app->render)("standard", "entities/authentication/login");
 }
 
 function login_user() {
@@ -60,7 +60,7 @@ function register_page($app) {
         exit;
     }
 
-    ($app->render)("standard", "authentication/register");
+    ($app->render)("standard", "entities/authentication/register");
 }
 
 function register_user() {
@@ -108,7 +108,7 @@ function manage_accounts($app) {
     }
 
     $accounts = Auth::getAllUsers();
-    ($app->render)("standard", "authentication/manage_accounts", ['accounts' => $accounts]);
+    ($app->render)("standard", "entities/authentication/manage_accounts", ['accounts' => $accounts]);
 }
 
 function delete_user($id) {
@@ -143,7 +143,7 @@ function edit_user_page($app, $id) {
         exit;
     }
 
-    ($app->render)("standard", "authentication/edit_account", ['user' => $user]);
+    ($app->render)("standard", "entities/authentication/edit_account", ['user' => $user]);
 }
 
 function update_user($id) {
