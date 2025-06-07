@@ -7,10 +7,10 @@
     <title>Court Outcome Tracking</title>
   </head>
   <body>
-    <?php require PARTIALS . "/_navbar.php"; ?>
+    <?php require_once __DIR__ . '/../partials/_navbar.php'; ?>
 
     <div class="container mt-4">
-        <?php require VIEWS . "/{$content}.view.php"; ?>
+        <?php require_once __DIR__ . "/../" . $content . ".view.php"; ?>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
