@@ -22,7 +22,7 @@ const DEFENDANT_FIELDS = [
 ];
 
 require_once __DIR__ . '/../models/Defendant.php';
-require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/helpers.php';
 
 switch ($action) {
     // direct user to correct page

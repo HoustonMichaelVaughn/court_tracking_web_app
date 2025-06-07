@@ -11,7 +11,7 @@ if (!Auth::isAuthenticated()) {
 }
 
 require_once __DIR__ . '/../models/Charge.php';
-require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/../models/Logs.php';
 
 // Route internally within charge_controller

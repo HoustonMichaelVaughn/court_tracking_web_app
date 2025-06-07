@@ -6,7 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once __DIR__ . '/../models/Auth.php';
 require_once __DIR__ . '/../models/Logs.php';
 require_once __DIR__ . '/../models/CourtEvent.php';
-require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/helpers.php';
 
 if (!Auth::isAuthenticated()) {
     header("Location: " . BASE_URL . "/login");

@@ -20,7 +20,7 @@ const LAWYER_FIELDS = [
 ];
 
 require_once __DIR__ . '/../models/Lawyer.php';
-require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/helpers.php';
 
 switch ($action) {
     // direct user to correct page

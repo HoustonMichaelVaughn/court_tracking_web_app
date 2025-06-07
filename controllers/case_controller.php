@@ -16,7 +16,7 @@ require_once __DIR__ . '/../models/Lawyer.php';
 require_once __DIR__ . '/../models/CaseRecord.php';
 require_once __DIR__ . '/../models/Charge.php';
 require_once __DIR__ . '/../models/CourtEvent.php';
-require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/../models/Logs.php';
 
 switch ($action) {
