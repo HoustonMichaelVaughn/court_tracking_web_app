@@ -17,7 +17,7 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link" href="<?= BASE_URL ?>/cases">
+            <a class="nav-link" href="<?= BASE_URL ?>/case/manage">
               <?= (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') ? 'Manage Cases' : 'Cases' ?>
             </a>
           </li>
