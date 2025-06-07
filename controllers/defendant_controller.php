@@ -116,7 +116,7 @@ function save_defendant($app, $defendantID = null) {
             }
         }
 
-        ($app->render)('standard', 'forms/defendant_form', [
+        ($app->render)('standard', 'entities/forms/defendant_form', [
             'defendant' => $defendant,
             'isEdit' => $isEdit,
         ]);
