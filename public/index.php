@@ -1,6 +1,7 @@
 <?php
 
 define('BASE_URL', '/court_tracking_web_app/public');
+define('VIEWS', dirname(__DIR__) . '/views');
 
 require_once '../controllers/mouse.php';
 require_once '../controllers/auth_controller.php'; // for login/logout/register logic
