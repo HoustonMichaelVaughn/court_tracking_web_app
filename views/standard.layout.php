@@ -10,7 +10,10 @@
     <?php require_once __DIR__ . '/partials/_navbar.php'; ?>
 
     <div class="container mt-4">
-        <?php require_once __DIR__ . "/entities/" . $content . ".view.php"; ?>
+        <?php
+        $viewPath = __DIR__ . "/" . ltrim($content, '/');
+        require_once $viewPath . ".view.php";
+        ?>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
