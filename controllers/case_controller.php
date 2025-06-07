@@ -19,6 +19,8 @@ require_once __DIR__ . '/../models/CourtEvent.php';
 require_once __DIR__ . '/helpers.php';
 require_once __DIR__ . '/../models/Logs.php';
 
+$action = $action ?? null;
+
 switch ($action) {
     // internal routing within the controller
     case 'defendant':
