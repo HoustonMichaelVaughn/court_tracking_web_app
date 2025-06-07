@@ -152,7 +152,7 @@ function show_manage_lawyers($app) {
     // get all lawyers from DB
     $lawyers = Lawyer::getAllLawyersWithDetails();
 
-    ($app->render)('standard', 'all_entities/all_lawyers', [
+    ($app->render)('standard', 'entities/all_entities/all_lawyers', [
         'lawyers' => $lawyers
     ]);
 }

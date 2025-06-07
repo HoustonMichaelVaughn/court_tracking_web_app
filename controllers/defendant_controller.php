@@ -181,7 +181,7 @@ function show_manage_defendants($app) {
         // get all defendants from DB
         $defendants = Defendant::getAllDefendantsWithDetails();
 
-        ($app->render)('standard', 'all_entities/all_defendants', [
+        ($app->render)('standard', 'entities/all_entities/all_defendants', [
             'defendants' => $defendants
         ]);
     } catch (Exception $e) {

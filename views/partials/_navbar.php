@@ -42,11 +42,6 @@
               <a class="nav-link" href="<?= BASE_URL ?>/accounts/manage">Manage Accounts</a>
             </li>
           <?php endif; ?>
-          <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-            <li class="nav-item">
-              <a class="nav-link" href="<?= BASE_URL ?>/accounts/manage">Manage Accounts</a>
-            </li>
-          <?php endif; ?>
         </ul>
 
         <ul class="navbar-nav ms-auto">
