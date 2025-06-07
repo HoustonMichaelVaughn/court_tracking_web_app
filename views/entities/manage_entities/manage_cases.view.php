@@ -2,7 +2,7 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-include_once __DIR__ . '/../partials/_navbar.php';
+include_once PARTIALS . '/_navbar.php';
 ?>
 
 <!-- This view provides a card layout for managing existing cases. -->
