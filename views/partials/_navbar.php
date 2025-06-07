@@ -5,6 +5,7 @@
   $loggedIn = isset($_SESSION['user_id']);
   if (!($isLoginPage && !$loggedIn)):
 ?>
+  <!-- This partial view contains the navigation bar, dynamically adjusting based on the user's session and role. -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
     <div class="container-fluid">
       <a class="navbar-brand" href="<?= BASE_URL ?>/">Court Tracker</a>

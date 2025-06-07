@@ -1,3 +1,7 @@
+<?php
+// This view displays a table of all cases with details like case ID, defendant, lawyer, and actions.
+?>
+
 <h2>Manage Cases</h2>
 <a href="<?= BASE_URL ?>/cases" class="btn btn-outline-secondary mb-3">← Back</a>
 

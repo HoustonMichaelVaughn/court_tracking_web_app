@@ -1,3 +1,7 @@
+<?php
+// This view provides a search form for querying multiple tables and displays search results.
+?>
+
 <h1>Multi-Table Search</h1>
 
 <form method="get" action="<?= dirname($_SERVER['SCRIPT_NAME']) ?>/defendant/search">

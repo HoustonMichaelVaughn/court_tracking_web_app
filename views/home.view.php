@@ -5,7 +5,7 @@
   <?php unset($_SESSION['success']); ?>
 <?php endif; ?>
 
-<!-- lib/views/home.view.php -->
+<!-- views/home.view.php -->
 <div class="p-5 mb-4 bg-light rounded-3">
   <div class="container-fluid py-5">
     <h1 class="display-5 fw-bold">Welcome to the Court Outcome Tracking System</h1>
@@ -98,3 +98,5 @@
   <?php endif; ?>
 </div>
 <?php endif; ?>
+
+<!-- This view serves as the homepage, welcoming users and providing an overview of the system. -->

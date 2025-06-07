@@ -1,3 +1,7 @@
+<?php
+// This view displays a success message after a case is added.
+?>
+
 <h2>Success</h2>
 
 <?php if (!empty($success)): ?>

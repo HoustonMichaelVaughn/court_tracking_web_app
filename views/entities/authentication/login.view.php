@@ -1,3 +1,7 @@
+<?php
+// This view provides a login form for the system.
+?>
+
 <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
   <div class="card shadow p-4" style="width: 100%; max-width: 400px;">
     <h3 class="text-center mb-3">Login to the Court Outcome Tracking system</h3>

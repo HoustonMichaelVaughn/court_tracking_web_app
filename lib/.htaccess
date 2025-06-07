@@ -1,7 +1,0 @@
-# This is temporary to prevent people from accessing lib. It doesn't matter
-# because it's all public facing anyway but ideally you'd have lib outside the public folder but this is a git
-# clone repo so it makes it hard.
-
-# Refuse access to this directory
-Order allow,deny
-Deny from all

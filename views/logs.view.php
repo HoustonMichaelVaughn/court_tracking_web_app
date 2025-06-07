@@ -1,3 +1,7 @@
+<?php
+// This view displays a list of logs with pagination and user details.
+?>
+
 <div class="container my-5">
 
   <!-- Page Title -->

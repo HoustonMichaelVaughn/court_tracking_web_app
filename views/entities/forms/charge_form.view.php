@@ -1,3 +1,6 @@
+<?php
+// This view displays a form for adding or editing a charge, including a partial for the form fields.
+?>
 
 <h2><?= $isEdit ? 'Edit Charge' : 'Add Charge' ?></h2>
 <div class="mb-4">
